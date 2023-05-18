@@ -35,6 +35,8 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  geolocator: ^9.0.2
+  flutter_riverpod: ^2.3.6
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +76,7 @@ flutter:
     - assets/themes/ncku.png
     - assets/themes/Confucius Temple.png
     - assets/themes/Houtong Cats Village.jpg
+    - assets/images/defaultProfile.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

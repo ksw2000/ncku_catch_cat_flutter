@@ -1,8 +1,10 @@
+import 'package:catch_cat/register.dart';
 import 'package:flutter/material.dart';
 import 'package:catch_cat/select.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -16,7 +18,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: '登入'),
+      routes: {
+        "/": (context) => const MyHomePage(title: '登入'),
+        "/select": (context) => const SelectPage(),
+        "/register": (context) => const RegisterPage(),
+        // "/play": (context) => const PlayGround(),
+      },
     );
   }
 }
@@ -79,13 +86,17 @@ class _MyHomePageState extends State<MyHomePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        OutlinedButton(onPressed: () {}, child: Text('註冊')),
+                        OutlinedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/register');
+                            },
+                            child: const Text('註冊')),
                         const SizedBox(width: 20),
                         OutlinedButton(
                             onPressed: () {
                               String pwd = pwdCtrl.text;
                               String act = actCtrl.text;
-                              login(pwd, act);
+                              _login(pwd, act);
                             },
                             child: const Text('登入')),
                       ],
@@ -93,10 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     const SizedBox(height: 20),
                     TextButton(
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const SelectPage()));
+                          Navigator.pushReplacementNamed(context, '/select');
                         },
                         child: const Text('訪客登入'))
                   ],
@@ -105,15 +113,15 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void login(String pwd, String act) {
+  void _login(String pwd, String act) {
     if (act == 'admin' && pwd == '00000000') {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const SelectPage()));
+      Navigator.pushNamed(context, '/select');
+      // Navigator.push(
+      //     context, MaterialPageRoute(builder: (context) => const SelectPage()));
     } else {
-      const snackBar = SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('帳號或密碼錯誤'),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      ));
     }
   }
 }
