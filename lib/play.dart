@@ -18,11 +18,16 @@ const initZoom = 16.0;
 const maxZoom = 18.0;
 const minZoom = 3.0;
 
+final fixPositionProvider = StateProvider((ref) {
+  return false;
+});
+
 class _PlayGroundState extends ConsumerState<PlayGround> {
   LatLng currentPosition = LatLng(initLatitude, initLongitude);
   Timer? _timer;
   final _mapController = MapController();
-  bool fixToCurrent = true;
+  // bool fixToCurrent = true;
+
   PlayData? data;
 
   @override
@@ -73,7 +78,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
               maxZoom: maxZoom,
               onPositionChanged: (MapPosition position, bool hasGesture) {
                 if (hasGesture) {
-                  fixToCurrent = false;
+                  ref.read(fixPositionProvider.notifier).state = false;
                 }
               }),
           nonRotatedChildren: [
@@ -165,12 +170,11 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
                     onPressed: () {
                       // move to the current position
                       _mapController.move(currentPosition, initZoom);
-                      setState(() {
-                        fixToCurrent = true;
-                      });
+                      ref.read(fixPositionProvider.notifier).state = true;
                     },
-                    icon: Icon(
-                        fixToCurrent ? Icons.gps_fixed : Icons.gps_not_fixed),
+                    icon: Icon(ref.watch(fixPositionProvider)
+                        ? Icons.gps_fixed
+                        : Icons.gps_not_fixed),
                   ),
                   IconButton(
                       onPressed: () {
@@ -216,11 +220,13 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
       _getPosition().then((position) {
         currentPosition = LatLng(position.latitude, position.longitude);
         if (mounted == true) {
-          if (fixToCurrent) {
+          if (ref.watch(fixPositionProvider)) {
             _mapController.move(currentPosition, _mapController.zoom);
           }
           setState(() {});
         }
+      }).onError((error, stackTrace) {
+        // TODO
       });
     });
   }
