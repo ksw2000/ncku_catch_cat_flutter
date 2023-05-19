@@ -3,6 +3,7 @@ import 'package:catch_cat/select.dart';
 import 'package:catch_cat/play.dart';
 import 'package:catch_cat/setting.dart';
 import 'package:catch_cat/ranking.dart';
+import 'package:catch_cat/friends.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,21 +23,20 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routes: {
-        "/": (context) => const MyHomePage(title: '登入'),
+        "/": (context) => const MyHomePage(),
         "/select": (context) => const SelectPage(),
         "/register": (context) => const RegisterPage(),
         "/play": (context) => const PlayGround(),
         "/play/ranking": (context) => const RankingPage(),
         "/setting": (context) => const SettingPage(),
+        "/friends": (context) => const FriendPage(),
       },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: const Text('登入'),
       ),
       body: SafeArea(
           child: Padding(

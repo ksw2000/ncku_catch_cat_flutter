@@ -152,8 +152,7 @@ class MyDrawer extends ConsumerWidget {
                   leading: const Icon(Icons.group),
                   title: const Text('朋友'),
                   onTap: () {
-                    // Update the state of the app.
-                    // ...
+                    Navigator.pushNamed(context, '/friends');
                   },
                 )
               : const SizedBox(),

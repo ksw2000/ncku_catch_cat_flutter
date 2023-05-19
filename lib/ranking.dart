@@ -29,7 +29,7 @@ class _RankingPageState extends ConsumerState<RankingPage> {
   List<Widget> generateRankingElements() {
     List<Widget> widgets = [];
     int i = 0;
-    debugRankData.forEach((e) {
+    debugRankDataList.forEach((e) {
       i++;
       widgets.add(RankingListElement(rank: i, name: e.name, score: e.score));
     });
@@ -49,22 +49,22 @@ class RankingListElement extends StatelessWidget {
     return Card(
         child: ListTile(
       leading: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.pinkAccent,
           shape: BoxShape.circle,
           // borderRadius: BorderRadius.all(Radius.circular(5))
         ),
         child: Padding(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             child: Text('$rank',
-                style: TextStyle(
+                style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.bold))),
       ),
       title: Text(name,
-          style:
-              TextStyle(color: Colors.pinkAccent, fontWeight: FontWeight.bold)),
+          style: const TextStyle(
+              color: Colors.pinkAccent, fontWeight: FontWeight.bold)),
       trailing: Text('$score',
-          style: TextStyle(
+          style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.pinkAccent)),
