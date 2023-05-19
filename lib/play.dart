@@ -18,8 +18,6 @@ const initZoom = 16.0;
 const maxZoom = 18.0;
 const minZoom = 3.0;
 
-// LatLng initPosition = LatLng(initLatitude, initLongitude);
-
 class _PlayGroundState extends ConsumerState<PlayGround> {
   LatLng currentPosition = LatLng(initLatitude, initLongitude);
   Timer? _timer;
@@ -58,6 +56,13 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(data?.name ?? ""),
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.workspace_premium),
+              onPressed: () {
+                Navigator.pushNamed(context, '/play/ranking');
+              })
+        ],
       ),
       body: Stack(children: [
         FlutterMap(
@@ -104,35 +109,50 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
             ),
           ],
         ),
-        const Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text('Caught'),
-                Text(
-                  '0／10',
-                  style: TextStyle(fontSize: 25),
-                )
-              ],
-            )),
-        // Center(
-        //     child: Column(
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   children: [
-        //     Image.asset(
-        //       'assets/images/cat (1).png',
-        //       width: 80,
-        //     ),
-        //     const SizedBox(
-        //       height: 10,
-        //     ),
-        //     const Text(
-        //       '300M',
-        //       style: TextStyle(fontSize: 25),
-        //     )
-        //   ],
-        // )),
+        Positioned(
+            left: 5,
+            top: 5,
+            child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: const BorderRadius.all(Radius.circular(5))),
+                child: const Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Text('Caught🐈'),
+                        Text(
+                          '0 / 10',
+                          style: TextStyle(fontSize: 25),
+                        )
+                      ],
+                    )))),
+        Positioned(
+            bottom: 45,
+            left: 5,
+            child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: const BorderRadius.all(Radius.circular(5))),
+                child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/images/cat (1).png',
+                          width: 65,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const Text(
+                          '300M',
+                          style: TextStyle(fontSize: 18),
+                        )
+                      ],
+                    )))),
         Positioned(
             right: 5,
             bottom: 45,

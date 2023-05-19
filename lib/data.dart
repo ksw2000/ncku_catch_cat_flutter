@@ -1,20 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-class XY {
-  const XY({required this.longitude, required this.latitude});
-  final double longitude;
-  final double latitude;
-}
+import 'package:latlong2/latlong.dart';
 
 class PlayData {
   PlayData(
       {required this.name,
       required this.thumbnail,
       required this.id,
-      this.points});
+      this.cats});
   final String name;
   final String thumbnail;
-  List<XY>? points = [];
+  List<Cat>? cats = [];
   final int id; // for connect to database
 }
 
@@ -25,7 +20,7 @@ StateProvider<PlayData?> playDataProvider = StateProvider((ref) {
 class Cat {
   Cat({required this.id, required this.position});
   final int id;
-  final XY position;
+  final LatLng position;
 }
 
 class UserData {
@@ -46,3 +41,26 @@ StateProvider<UserData?> userDataProvider = StateProvider((ref) {
   // TODO: Get from database
   return UserData(id: 0, name: 'かすかす', email: 'algoalgogo@gmail.com');
 });
+
+const defaultProfile = 'assets/images/defaultProfile.png';
+
+class RankingData {
+  RankingData(
+      {
+      // required this.uid,
+      required this.name,
+      // required this.themeID,
+      required this.score});
+  // final int uid; // uid
+  final String name; // user name
+  // final int themeID; // 對應的主題
+  final int score; // 得分
+}
+
+List<RankingData> debugRankData = <RankingData>[
+  RankingData(name: "侑", score: 13),
+  RankingData(name: "步夢", score: 12),
+  RankingData(name: "栞子", score: 1),
+  RankingData(name: "かすみ", score: 1),
+  // RankingData(),
+];

@@ -1,4 +1,3 @@
-import 'package:catch_cat/play.dart';
 import 'package:catch_cat/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -144,11 +143,38 @@ class MyDrawer extends ConsumerWidget {
                   leading: const Icon(Icons.settings),
                   title: const Text('設定'),
                   onTap: () {
+                    Navigator.pushNamed(context, '/setting');
+                  },
+                )
+              : const SizedBox(),
+          user != null
+              ? ListTile(
+                  leading: const Icon(Icons.group),
+                  title: const Text('朋友'),
+                  onTap: () {
                     // Update the state of the app.
                     // ...
                   },
                 )
               : const SizedBox(),
+          user != null
+              ? ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('圖鑑'),
+                  onTap: () {
+                    // Update the state of the app.
+                    // ...
+                  },
+                )
+              : const SizedBox(),
+          ListTile(
+            leading: const Icon(Icons.menu_book),
+            title: const Text('劇情'),
+            onTap: () {
+              // Update the state of the app.
+              // ...
+            },
+          ),
           user != null
               ? ListTile(
                   leading: const Icon(Icons.logout),
@@ -178,7 +204,7 @@ class UserField extends ConsumerWidget {
   const UserField({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final String name = ref.watch(userDataProvider)?.name ?? "無";
+    final String name = ref.watch(userDataProvider)?.name ?? '';
     final int caughtCats = ref.watch(userDataProvider)?.cats.length ?? 0;
     final String? profile = ref.watch(userDataProvider)?.profile;
     final String email = ref.watch(userDataProvider)?.email ?? '';
@@ -201,7 +227,7 @@ class UserField extends ConsumerWidget {
                                 scale: 1,
                               ).image
                             : Image.asset(
-                                'assets/images/defaultProfile.png',
+                                defaultProfile,
                                 width: 100,
                                 scale: 1,
                               ).image,
