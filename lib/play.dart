@@ -1,30 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:catch_cat/data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'dart:async';
 
-class PlayGround extends StatefulWidget {
-  const PlayGround({super.key, required this.data});
-  final PlayData data;
+class PlayGround extends ConsumerStatefulWidget {
+  const PlayGround({super.key});
   @override
-  State<PlayGround> createState() => _PlayGroundState();
+  ConsumerState<PlayGround> createState() => _PlayGroundState();
 }
 
-class _PlayGroundState extends State<PlayGround> {
-  double _longitude = 0;
-  double _latitude = 0;
-  Timer? _timer;
+const initLongitude = 120.22062435767066;
+const initLatitude = 22.997658959467252;
+const initZoom = 16.0;
+const maxZoom = 18.0;
+const minZoom = 3.0;
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
+// LatLng initPosition = LatLng(initLatitude, initLongitude);
+
+class _PlayGroundState extends ConsumerState<PlayGround> {
+  LatLng currentPosition = LatLng(initLatitude, initLongitude);
+  Timer? _timer;
+  final _mapController = MapController();
+  bool fixToCurrent = true;
+  PlayData? data;
 
   @override
   void initState() {
     super.initState();
     updatePositionPeriodically();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _mapController.dispose();
+    super.dispose();
   }
 
   // 畫面切換
@@ -36,52 +49,135 @@ class _PlayGroundState extends State<PlayGround> {
 
   @override
   Widget build(BuildContext context) {
+    data = ref.read(playDataProvider);
     if (_timer == null) {
       updatePositionPeriodically();
     }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.data.name),
+        title: Text(data?.name ?? ""),
       ),
       body: Stack(children: [
+        FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+              center: currentPosition,
+              zoom: initZoom,
+              maxZoom: maxZoom,
+              onPositionChanged: (MapPosition position, bool hasGesture) {
+                if (hasGesture) {
+                  fixToCurrent = false;
+                }
+              }),
+          nonRotatedChildren: [
+            RichAttributionWidget(
+              attributions: [
+                TextSourceAttribution('OpenStreetMap contributors',
+                    onTap: () => {
+                          //launchUrl(Uri.parse('https://openstreetmap.org/copyright')
+                        }),
+              ],
+            ),
+          ],
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.example.app',
+            ),
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: currentPosition,
+                  width: 20,
+                  height: 20,
+                  builder: (context) {
+                    return const Icon(
+                      Icons.radio_button_checked,
+                      color: Colors.blue,
+                      size: 30,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
         const Padding(
             padding: EdgeInsets.all(10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text('Catched'),
+                Text('Caught'),
                 Text(
                   '0／10',
                   style: TextStyle(fontSize: 25),
                 )
               ],
             )),
-        Center(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/images/cat (1).png',
-              width: 80,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            const Text(
-              '300M',
-              style: TextStyle(fontSize: 25),
-            )
-          ],
-        )),
+        // Center(
+        //     child: Column(
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   children: [
+        //     Image.asset(
+        //       'assets/images/cat (1).png',
+        //       width: 80,
+        //     ),
+        //     const SizedBox(
+        //       height: 10,
+        //     ),
+        //     const Text(
+        //       '300M',
+        //       style: TextStyle(fontSize: 25),
+        //     )
+        //   ],
+        // )),
+        Positioned(
+            right: 5,
+            bottom: 45,
+            child: Container(
+                decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(5))),
+                child: Column(children: [
+                  IconButton(
+                    onPressed: () {
+                      // move to the current position
+                      _mapController.move(currentPosition, initZoom);
+                      setState(() {
+                        fixToCurrent = true;
+                      });
+                    },
+                    icon: Icon(
+                        fixToCurrent ? Icons.gps_fixed : Icons.gps_not_fixed),
+                  ),
+                  IconButton(
+                      onPressed: () {
+                        double zoom = _mapController.zoom;
+                        LatLng center = _mapController.center;
+                        if (zoom + .5 <= maxZoom) {
+                          _mapController.move(center, zoom + 0.5);
+                        }
+                      },
+                      icon: const Icon(Icons.add)),
+                  IconButton(
+                      onPressed: () {
+                        double zoom = _mapController.zoom;
+                        LatLng center = _mapController.center;
+                        if (zoom - .5 >= minZoom) {
+                          print(zoom);
+                          _mapController.move(center, zoom - 0.5);
+                        }
+                      },
+                      icon: const Icon(Icons.remove))
+                ]))),
         Align(
           alignment: Alignment.bottomCenter,
           child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Text(
-                _longitude == 0.0 && _latitude == 0.0
-                    ? ''
-                    : '$_latitude, $_longitude',
+                '${currentPosition.latitude}, ${currentPosition.longitude}',
                 style: const TextStyle(color: Colors.grey),
               )),
         )
@@ -98,9 +194,11 @@ class _PlayGroundState extends State<PlayGround> {
   void updatePositionPeriodically() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _getPosition().then((position) {
-        _latitude = position.latitude;
-        _longitude = position.longitude;
+        currentPosition = LatLng(position.latitude, position.longitude);
         if (mounted == true) {
+          if (fixToCurrent) {
+            _mapController.move(currentPosition, _mapController.zoom);
+          }
           setState(() {});
         }
       });

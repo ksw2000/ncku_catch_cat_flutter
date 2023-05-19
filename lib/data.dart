@@ -18,6 +18,10 @@ class PlayData {
   final int id; // for connect to database
 }
 
+StateProvider<PlayData?> playDataProvider = StateProvider((ref) {
+  return null;
+});
+
 class Cat {
   Cat({required this.id, required this.position});
   final int id;
@@ -38,7 +42,7 @@ class UserData {
   List<Cat> cats = [];
 }
 
-Provider<UserData?> userData = Provider((ref) {
+StateProvider<UserData?> userDataProvider = StateProvider((ref) {
   // TODO: Get from database
   return UserData(id: 0, name: 'かすかす', email: 'algoalgogo@gmail.com');
 });

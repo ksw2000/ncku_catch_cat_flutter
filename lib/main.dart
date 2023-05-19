@@ -1,6 +1,7 @@
 import 'package:catch_cat/register.dart';
-import 'package:flutter/material.dart';
 import 'package:catch_cat/select.dart';
+import 'package:catch_cat/play.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
         "/": (context) => const MyHomePage(title: '登入'),
         "/select": (context) => const SelectPage(),
         "/register": (context) => const RegisterPage(),
-        // "/play": (context) => const PlayGround(),
+        "/play": (context) => const PlayGround(),
       },
     );
   }

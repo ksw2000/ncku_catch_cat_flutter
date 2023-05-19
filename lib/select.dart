@@ -68,16 +68,16 @@ class _SelectPageState extends State<SelectPage> {
   }
 }
 
-class PlayCard extends StatefulWidget {
+class PlayCard extends ConsumerWidget {
   const PlayCard({super.key, required this.data});
   final PlayData data;
-  @override
-  State<PlayCard> createState() => _PlayCardState();
-}
+//   @override
+//   State<PlayCard> createState() => _PlayCardState();
+// }
 
-class _PlayCardState extends State<PlayCard> {
+// class _PlayCardState extends State<PlayCard> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
         SizedBox(
@@ -86,7 +86,7 @@ class _PlayCardState extends State<PlayCard> {
               decoration: BoxDecoration(
                 image: DecorationImage(
                   image: Image.asset(
-                    widget.data.thumbnail,
+                    data.thumbnail,
                   ).image,
                   fit: BoxFit.cover,
                 ),
@@ -96,18 +96,19 @@ class _PlayCardState extends State<PlayCard> {
               ),
               child: InkWell(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PlayGround(data: widget.data)));
+                  ref.read(playDataProvider.notifier).state = data;
+                  Navigator.pushNamed(context, '/play');
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (context) => PlayGround(data: widget.data)));
                 },
                 splashColor: Colors.white.withOpacity(0.3),
               ),
             )),
         Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            child:
-                Text(widget.data.name, style: const TextStyle(fontSize: 18))),
+            child: Text(data.name, style: const TextStyle(fontSize: 18))),
       ]),
     );
   }
@@ -117,7 +118,7 @@ class MyDrawer extends ConsumerWidget {
   const MyDrawer({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final UserData? user = ref.watch(userData);
+    final UserData? user = ref.watch(userDataProvider);
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -153,16 +154,18 @@ class MyDrawer extends ConsumerWidget {
                   leading: const Icon(Icons.logout),
                   title: const Text('登出'),
                   onTap: () {
-                    // Update the state of the app.
-                    // ...
+                    // clear user data
+                    ref.read(userDataProvider.notifier).state = null;
+                    // goto home page(login page)
+                    Navigator.pushReplacementNamed(context, '/');
                   },
                 )
               : ListTile(
                   leading: const Icon(Icons.login),
                   title: const Text('登入'),
                   onTap: () {
-                    // Update the state of the app.
-                    // ...
+                    // goto home page(login page)
+                    Navigator.pushReplacementNamed(context, '/');
                   },
                 ),
         ],
@@ -175,92 +178,95 @@ class UserField extends ConsumerWidget {
   const UserField({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final String name = ref.watch(userData)?.name ?? "無";
-    final int caughtCats = ref.watch(userData)?.cats.length ?? 0;
-    final String? profile = ref.watch(userData)?.profile;
-    final String email = ref.watch(userData)?.email ?? '';
+    final String name = ref.watch(userDataProvider)?.name ?? "無";
+    final int caughtCats = ref.watch(userDataProvider)?.cats.length ?? 0;
+    final String? profile = ref.watch(userDataProvider)?.profile;
+    final String email = ref.watch(userDataProvider)?.email ?? '';
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        SizedBox(
-            height: 100,
-            width: 100,
-            child: Ink(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: profile != null
-                      ? Image.network(
-                          profile,
-                          width: 100,
-                          scale: 1,
-                        ).image
-                      : Image.asset(
-                          'assets/images/defaultProfile.png',
-                          width: 100,
-                          scale: 1,
-                        ).image,
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-              ),
-              child: InkWell(
-                onTap: () {
-                  //TODO
-                },
-                splashColor: Colors.white.withOpacity(0.3),
-              ),
-            )),
-        const SizedBox(
-          width: 20,
-        ),
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(
-            name,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Row(
-            children: [
-              const Icon(
-                Icons.email,
-                size: 16,
-              ),
+    return ref.watch(userDataProvider) == null
+        ? const SizedBox()
+        : Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: profile != null
+                            ? Image.network(
+                                profile,
+                                width: 100,
+                                scale: 1,
+                              ).image
+                            : Image.asset(
+                                'assets/images/defaultProfile.png',
+                                width: 100,
+                                scale: 1,
+                              ).image,
+                        fit: BoxFit.cover,
+                      ),
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        //TODO
+                      },
+                      splashColor: Colors.white.withOpacity(0.3),
+                    ),
+                  )),
               const SizedBox(
-                width: 10,
+                width: 20,
               ),
-              Text(email, style: const TextStyle(fontSize: 15)),
-            ],
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Row(children: [
-            const Text(
-              '🐈',
-              style: TextStyle(fontSize: 15),
-            ),
-            const SizedBox(
-              width: 5,
-            ),
-            Text(
-              '已抓到 $caughtCats 隻貓貓',
-              style: const TextStyle(fontSize: 15),
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            TextButton(
-                onPressed: () {},
-                child: const Text(
-                  '圖鑑',
-                  style: TextStyle(fontSize: 15),
-                ))
-          ]),
-        ])
-      ]),
-    );
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.email,
+                      size: 16,
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Text(email, style: const TextStyle(fontSize: 15)),
+                  ],
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Row(children: [
+                  const Text(
+                    '🐈',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  Text(
+                    '已抓到 $caughtCats 隻貓貓',
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  TextButton(
+                      onPressed: () {},
+                      child: const Text(
+                        '圖鑑',
+                        style: TextStyle(fontSize: 15),
+                      ))
+                ]),
+              ])
+            ]),
+          );
   }
 }
