@@ -1,14 +1,19 @@
+import 'dart:convert';
+
 import 'package:catch_cat/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SelectPage extends StatefulWidget {
+import 'package:catch_cat/api.dart';
+import 'package:http/http.dart' as http;
+
+class SelectPage extends ConsumerStatefulWidget {
   const SelectPage({super.key});
   @override
-  State<SelectPage> createState() => _SelectPageState();
+  ConsumerState<SelectPage> createState() => _SelectPageState();
 }
 
-class _SelectPageState extends State<SelectPage> {
+class _SelectPageState extends ConsumerState<SelectPage> {
   final scrollCtrl = ScrollController();
   @override
   void dispose() {
@@ -34,27 +39,42 @@ class _SelectPageState extends State<SelectPage> {
                       child: Column(
                         children: [
                           const UserField(),
-                          // const Padding(padding: EdgeInsets.symmetric(vertical: 10),child: Text(
-                          //   '選擇主題',
-                          //   style: TextStyle(fontSize: 25),
-                          // )),
-                          PlayCard(
-                              data: PlayData(
-                                  name: '國立成功大學',
-                                  thumbnail: 'assets/themes/ncku.png',
-                                  id: 0)),
-                          PlayCard(
-                              data: PlayData(
-                                  name: '台南孔廟商圈',
-                                  thumbnail:
-                                      'assets/themes/Confucius Temple.png',
-                                  id: 1)),
-                          PlayCard(
-                              data: PlayData(
-                                  name: '猴硐猫村',
-                                  thumbnail:
-                                      'assets/themes/Houtong Cats Village.jpg',
-                                  id: 1)),
+                          FutureBuilder<List<PlayThemeData>>(
+                            future: _getPlayThemeList(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<List<PlayThemeData>> snapshot) {
+                              List<Widget> children;
+                              if (snapshot.hasData) {
+                                children = snapshot.data!
+                                    .map((e) => PlayCard(data: e))
+                                    .toList();
+                              } else if (snapshot.hasError) {
+                                children = <Widget>[
+                                  const Icon(
+                                    Icons.error_outline,
+                                    color: Colors.red,
+                                    size: 60,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 16),
+                                    child: Text('Error: ${snapshot.error}'),
+                                  ),
+                                ];
+                              } else {
+                                children = const <Widget>[
+                                  SizedBox(
+                                    width: 60,
+                                    height: 60,
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ];
+                              }
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: children,
+                              );
+                            },
+                          ),
                           const SizedBox(
                             height: 10,
                           ),
@@ -65,11 +85,37 @@ class _SelectPageState extends State<SelectPage> {
                       )),
                 ))));
   }
+
+  Future<List<PlayThemeData>> _getPlayThemeList() async {
+    List<PlayThemeData> themeDataList = [];
+
+    http.Response res = await http.get(
+      uri(domain, '/theme_list'),
+    );
+    debugPrint(res.body);
+    if (res.statusCode == 200) {
+      // decode
+      Map<String, dynamic> j = jsonDecode(res.body);
+
+      // check if any error
+      if (mounted && j['error'] != "") {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(j['error']),
+        ));
+      }
+
+      j['list'].forEach((k) {
+        themeDataList.add(PlayThemeData(
+            name: k['name'], thumbnail: k['thumbnail'], id: k['theme_id']));
+      });
+    }
+    return themeDataList;
+  }
 }
 
 class PlayCard extends ConsumerWidget {
   const PlayCard({super.key, required this.data});
-  final PlayData data;
+  final PlayThemeData data;
 //   @override
 //   State<PlayCard> createState() => _PlayCardState();
 // }
@@ -204,7 +250,7 @@ class UserField extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final String name = ref.watch(userDataProvider)?.name ?? '';
-    final int caughtCats = ref.watch(userDataProvider)?.cats.length ?? 0;
+    final int caughtCats = ref.watch(userDataProvider)?.cats ?? 0;
     final String? profile = ref.watch(userDataProvider)?.profile;
     final String email = ref.watch(userDataProvider)?.email ?? '';
 

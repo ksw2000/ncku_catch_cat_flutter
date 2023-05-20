@@ -31,7 +31,7 @@ class _RankingPageState extends ConsumerState<RankingPage> {
     int i = 0;
     debugRankDataList.forEach((e) {
       i++;
-      widgets.add(RankingListElement(rank: i, name: e.name, score: e.score));
+      widgets.add(RankingListElement(rank: i, name: e.name, score: e.cats));
     });
     return widgets;
   }

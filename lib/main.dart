@@ -1,11 +1,17 @@
+import 'dart:convert';
+
 import 'package:catch_cat/register.dart';
 import 'package:catch_cat/select.dart';
 import 'package:catch_cat/play.dart';
 import 'package:catch_cat/setting.dart';
 import 'package:catch_cat/ranking.dart';
 import 'package:catch_cat/friends.dart';
+import 'package:catch_cat/api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+
+import 'data.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -35,21 +41,21 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends ConsumerStatefulWidget {
   const MyHomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  ConsumerState<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends ConsumerState<MyHomePage> {
+  final emailCtrl = TextEditingController();
   final pwdCtrl = TextEditingController();
-  final actCtrl = TextEditingController();
 
   @override
   void dispose() {
+    emailCtrl.dispose();
     pwdCtrl.dispose();
-    actCtrl.dispose();
     super.dispose();
   }
 
@@ -70,10 +76,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     Image.asset('assets/images/logo.png', width: 120),
                     const SizedBox(height: 20),
                     TextField(
-                      controller: actCtrl,
+                      controller: emailCtrl,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: '帳號',
+                        hintText: 'Email',
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -99,9 +105,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         const SizedBox(width: 20),
                         OutlinedButton(
                             onPressed: () {
-                              String pwd = pwdCtrl.text;
-                              String act = actCtrl.text;
-                              _login(pwd, act);
+                              if (mounted) {
+                                _login(emailCtrl.text, pwdCtrl.text);
+                              }
                             },
                             child: const Text('登入')),
                       ],
@@ -118,15 +124,34 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _login(String pwd, String act) {
-    if (act == 'admin' && pwd == '00000000') {
-      Navigator.pushNamed(context, '/select');
-      // Navigator.push(
-      //     context, MaterialPageRoute(builder: (context) => const SelectPage()));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('帳號或密碼錯誤'),
+  void _login(String email, String pwd) async {
+    http.Response res = await http.post(uri(domain, '/login'),
+        body: jsonEncode({
+          'password': pwd,
+          'email': email,
+        }));
+    if (res.statusCode != 200) {
+      throw (res.statusCode);
+    }
+    print(res.body);
+    Map<String, dynamic> j = jsonDecode(res.body);
+    if (mounted && j['error'] != "") {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(j['error']),
       ));
+    }
+    UserData user = UserData(
+        id: j["uid"],
+        session: j['session'],
+        name: j["name"],
+        profile: j["profile"] == "" ? null : j["profile"],
+        email: j["email"],
+        verified: j["verified"],
+        rank: j["rank"],
+        cats: j["cats"]);
+    ref.read(userDataProvider.notifier).state = user;
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, '/select');
     }
   }
 }

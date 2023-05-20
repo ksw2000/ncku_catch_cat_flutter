@@ -26,9 +26,8 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
   LatLng currentPosition = LatLng(initLatitude, initLongitude);
   Timer? _timer;
   final _mapController = MapController();
-  // bool fixToCurrent = true;
 
-  PlayData? data;
+  PlayThemeData? data;
 
   @override
   void initState() {

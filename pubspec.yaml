@@ -39,6 +39,7 @@ dependencies:
   flutter_riverpod: ^2.3.6
   flutter_map: ^4.0.0
   latlong2: ^0.8.1
+  http: ^0.13.6
 
 dev_dependencies:
   flutter_test:

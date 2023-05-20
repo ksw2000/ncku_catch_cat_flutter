@@ -12,6 +12,7 @@ class SettingPage extends ConsumerStatefulWidget {
 class _SettingPageState extends ConsumerState<SettingPage> {
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
+  final _oriPwdCtrl = TextEditingController();
   final _pwdCtrl = TextEditingController();
   final _confirmPwdCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
@@ -20,6 +21,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   void dispose() {
     _nameCtrl.dispose();
     _emailCtrl.dispose();
+    _oriPwdCtrl.dispose();
     _pwdCtrl.dispose();
     _confirmPwdCtrl.dispose();
     _scrollCtrl.dispose();
@@ -32,6 +34,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       return const SizedBox();
     }
 
+    final bool verified = ref.watch(userDataProvider)!.verified;
     final String name = ref.watch(userDataProvider)!.name;
     final String? profile = ref.watch(userDataProvider)!.profile;
     final String email = ref.watch(userDataProvider)!.email;
@@ -129,6 +132,17 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             const Text(
                               '修改密碼',
                               style: titleTextStyle,
+                            ),
+                            separator,
+                            TextField(
+                              controller: _oriPwdCtrl,
+                              obscureText: true,
+                              enableSuggestions: false,
+                              autocorrect: false,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: '原始密碼',
+                              ),
                             ),
                             separator,
                             TextField(
