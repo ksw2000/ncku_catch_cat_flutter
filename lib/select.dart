@@ -224,11 +224,26 @@ class MyDrawer extends ConsumerWidget {
               ? ListTile(
                   leading: const Icon(Icons.logout),
                   title: const Text('登出'),
-                  onTap: () {
+                  onTap: () async {
+                    http.Response res = await http.post(uri(domain, '/logout'),
+                        body: jsonEncode({'session': user.session}));
+                    if (res.statusCode != 200) {
+                      throw (res.statusCode);
+                    }
+                    debugPrint(res.body);
+                    Map<String, dynamic> j = jsonDecode(res.body);
+                    if (context.mounted && j['error'] != "") {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(j['error']),
+                      ));
+                      return;
+                    }
                     // clear user data
                     ref.read(userDataProvider.notifier).state = null;
                     // goto home page(login page)
-                    Navigator.pushReplacementNamed(context, '/');
+                    if (context.mounted) {
+                      Navigator.pushReplacementNamed(context, '/');
+                    }
                   },
                 )
               : ListTile(

@@ -13,24 +13,6 @@ class PlayThemeData {
   final int id; // for connect to database
 }
 
-// List<PlayThemeData> debugThemeData = <PlayThemeData>[
-//   PlayThemeData(
-//     id: 0,
-//     name: '國立成功大學',
-//     thumbnail: 'assets/themes/ncku.png',
-//   ),
-//   PlayThemeData(
-//     id: 1,
-//     name: '台南孔廟商圈',
-//     thumbnail: 'assets/themes/Confucius Temple.png',
-//   ),
-//   PlayThemeData(
-//     id: 2,
-//     name: '猴硐猫村',
-//     thumbnail: 'assets/themes/Houtong Cats Village.jpg',
-//   )
-// ];
-
 StateProvider<PlayThemeData?> playDataProvider = StateProvider((ref) {
   return null;
 });
@@ -51,6 +33,17 @@ class UserData {
       required this.verified,
       required this.session,
       required this.cats});
+
+  UserData.fromMap(Map<String, dynamic> j)
+      : id = j["uid"],
+        session = j['session'],
+        name = j["name"],
+        profile = j["profile"] == "" ? null : j["profile"],
+        email = j["email"],
+        verified = j["verified"],
+        rank = j["rank"],
+        cats = j["cats"];
+
   final int id;
   final String name;
   final String email;
@@ -62,12 +55,27 @@ class UserData {
 }
 
 StateProvider<UserData?> userDataProvider = StateProvider((ref) {
-  return null;
+  return UserData(
+    cats: 0,
+    name: 'INHPC',
+    email: 'algoalgogo@gmail.com',
+    id: 452108996911,
+    rank: 0,
+    verified: false,
+    session: '0',
+  );
+  // return null;
 });
 
-// EMAIL: algoalgogo@gmail.com
-// NAME: INHPC
-// PASSWORD: algoalgo2023
+// user 1
+// email:     algoalgogo@gmail.com
+// name:      INHPC
+// password:  algoalgo2023
+
+// user 2
+// email:     ayumu@mail.com
+// name:      歩夢
+// password:  algoalgo2023
 
 const defaultProfile = 'assets/images/defaultProfile.png';
 
@@ -88,26 +96,40 @@ List<RankingData> debugRankDataList = <RankingData>[
 
 class FriendData {
   const FriendData(
-      {required this.name,
-      this.profile,
+      {this.profile,
+      required this.name,
       required this.id,
-      required this.level,
-      required this.inviting});
+      required this.level});
+
+  FriendData.fromMap(Map<String, dynamic> j)
+      : id = j["uid"],
+        name = j["name"],
+        profile = j["profile"] == "" ? null : j["profile"],
+        level = j["level"];
+
   final String name;
   final String? profile;
   final int id;
   final int level; // 好友 level
-  final bool inviting; // 好友申請
 }
 
-List<FriendData> debugFriendDataList = <FriendData>[
-  const FriendData(name: "侑", id: 0, level: 1, inviting: false),
-  const FriendData(name: "步夢", id: 0, level: 2, inviting: false),
-  const FriendData(name: "栞子", id: 0, level: 10, inviting: false),
-  const FriendData(name: "かすみ", id: 0, level: 20, inviting: false),
-];
+// StateProvider<List<FriendData>?> friendDataProvider = StateProvider((ref) {
+//   return null;
+// });
 
-List<FriendData> debugFriendDataInvitingList = <FriendData>[
-  const FriendData(name: "果林", id: 0, level: 1, inviting: true),
-  const FriendData(name: "しずく", id: 0, level: 2, inviting: true),
-];
+// StateProvider<List<FriendData>?> friendInvitingDataProvider =
+//     StateProvider((ref) {
+//   return null;
+// });
+
+// List<FriendData> debugFriendDataList = <FriendData>[
+//   const FriendData(name: "侑", id: 0, level: 1, inviting: false),
+//   const FriendData(name: "步夢", id: 0, level: 2, inviting: false),
+//   const FriendData(name: "栞子", id: 0, level: 10, inviting: false),
+//   const FriendData(name: "かすみ", id: 0, level: 20, inviting: false),
+// ];
+
+// List<FriendData> debugFriendDataInvitingList = <FriendData>[
+//   const FriendData(name: "果林", id: 0, level: 1, inviting: true),
+//   const FriendData(name: "しずく", id: 0, level: 2, inviting: true),
+// ];

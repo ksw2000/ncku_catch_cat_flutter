@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:catch_cat/api.dart';
 import 'package:catch_cat/data.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 
 class FriendPage extends ConsumerStatefulWidget {
   const FriendPage({Key? key}) : super(key: key);
@@ -27,8 +32,9 @@ class _FriendPageState extends ConsumerState<FriendPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> friendList = _getFriendList();
-    List<Widget> friendInvitingList = _getFriendInvitingList();
+    final invitingList = _generateFutureBuilder(false);
+    final friendList = _generateFutureBuilder(true);
+
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -50,66 +56,159 @@ class _FriendPageState extends ConsumerState<FriendPage> {
                                 style: titleTextStyle,
                               ),
                               separator,
-                              TextField(
-                                controller: _addUserByIDCtrl,
-                                decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    hintText: '好友 ID',
-                                    prefixIcon: Icon(Icons.search)),
-                                keyboardType: TextInputType.number,
+                              Row(
+                                children: [
+                                  // https://stackoverflow.com/questions/45986093/textfield-inside-of-row-causes-layout-exception-unable-to-calculate-size
+                                  Flexible(
+                                      child: TextField(
+                                    controller: _addUserByIDCtrl,
+                                    decoration: const InputDecoration(
+                                        border: OutlineInputBorder(),
+                                        hintText: '好友 ID',
+                                        prefixIcon: Icon(Icons.search)),
+                                    keyboardType: TextInputType.number,
+                                  )),
+                                  TextButton(
+                                      onPressed: _inviteFriend,
+                                      child: const Text('申請')),
+                                ],
                               ),
                               separator,
-                              Center(
-                                child: OutlinedButton(
-                                    onPressed: () {}, child: const Text('申請')),
+                              Row(
+                                children: [
+                                  Text(
+                                    '我的 ID: ${ref.watch(userDataProvider)?.id.toString()}',
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  TextButton(
+                                      onPressed: () => _copyID(),
+                                      child: const Text('複製'))
+                                ],
                               ),
                               separator,
-                              friendInvitingList.isNotEmpty
-                                  ? const Text('好友申請', style: titleTextStyle)
-                                  : const SizedBox(),
-                              // ---------------------------- //
-                              friendInvitingList.isNotEmpty
-                                  ? separator
-                                  : const SizedBox(),
-                              ...friendInvitingList,
-                              friendInvitingList.isNotEmpty
-                                  ? separator
-                                  : const SizedBox(),
-                              // ---------------------------- //
-                              friendList.isNotEmpty
-                                  ? const Text('好友列表', style: titleTextStyle)
-                                  : const SizedBox(),
-                              friendList.isNotEmpty
-                                  ? separator
-                                  : const SizedBox(),
-                              ...friendList,
-                              friendList.isNotEmpty
-                                  ? separator
-                                  : const SizedBox(),
+                              invitingList,
+                              friendList
                             ]))))));
   }
 
-  List<Widget> _getFriendList() {
-    return debugFriendDataList.map((e) => FriendElement(data: e)).toList();
+  void _copyID() async {
+    await Clipboard.setData(
+        ClipboardData(text: ref.watch(userDataProvider)?.id.toString() ?? ""));
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('已複製')));
+    }
   }
 
-  List<Widget> _getFriendInvitingList() {
-    return debugFriendDataInvitingList
-        .map((e) => FriendElement(data: e))
+  FutureBuilder<List<FriendData>> _generateFutureBuilder(bool accepted) {
+    return FutureBuilder<List<FriendData>>(
+      future: _getFriendList(accepted),
+      builder:
+          (BuildContext context, AsyncSnapshot<List<FriendData>> snapshot) {
+        if (snapshot.hasData) {
+          return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                snapshot.data!.isNotEmpty
+                    ? Text(accepted ? '好友列表' : '好友申請', style: titleTextStyle)
+                    : const SizedBox(),
+                ...snapshot.data!
+                    .map((e) => FriendElement(
+                          data: e,
+                          accepted: accepted,
+                        ))
+                    .toList(),
+                snapshot.data!.isNotEmpty ? separator : const SizedBox()
+              ]);
+        } else if (snapshot.hasError) {
+          return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Icon(
+                  Icons.error_outline,
+                  color: Colors.red,
+                  size: 60,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text('Error: ${snapshot.error}'),
+                ),
+              ]);
+        }
+
+        return const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 60,
+              height: 60,
+              child: CircularProgressIndicator(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<List<FriendData>> _getFriendList(bool accepted) async {
+    http.Response res = await http.post(
+        uri(domain, accepted ? '/friends/list' : '/friends/inviting_me'),
+        body: jsonEncode({
+          'session': ref.read(userDataProvider)?.session,
+        }));
+    debugPrint(res.body);
+
+    if (res.statusCode != 200) {
+      return [];
+    }
+
+    Map<String, dynamic> j = jsonDecode(res.body);
+    if (j['error'] != "") {
+      debugPrint(j['error']);
+    }
+
+    return (j['list'] as List<dynamic>)
+        .map((e) => FriendData.fromMap(e))
         .toList();
+  }
+
+  _inviteFriend() async {
+    http.Response res = await http.post(uri(domain, '/friend/invite'),
+        body: jsonEncode({
+          'session': ref.read(userDataProvider)?.session,
+          'finding_uid': int.parse(_addUserByIDCtrl.text),
+        }));
+    debugPrint(res.body);
+    if (mounted && res.statusCode == 201) {
+      _addUserByIDCtrl.text = "";
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('已申請，等待對方回覆'),
+      ));
+    }
+    Map<String, dynamic> j = jsonDecode(res.body);
+    if (mounted && j['error'] != "") {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(j['error']),
+      ));
+    }
   }
 }
 
-class FriendElement extends StatelessWidget {
-  const FriendElement({Key? key, required this.data}) : super(key: key);
+class FriendElement extends ConsumerWidget {
+  const FriendElement({Key? key, required this.accepted, required this.data})
+      : super(key: key);
   final FriendData data;
+  final bool accepted;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Card(
         child: ListTile(
       dense: true,
-      visualDensity: VisualDensity(vertical: 3),
+      visualDensity: const VisualDensity(vertical: 3),
       leading: SizedBox(
           height: 50,
           width: 50,
@@ -156,13 +255,14 @@ class FriendElement extends StatelessWidget {
             ),
             Text(data.name, style: const TextStyle(fontSize: 17))
           ]),
-      trailing: data.inviting
+      trailing: !accepted
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
                     onPressed: () {
-                      // TODO
+                      _acceptOrDeclineOrDeleteFriend(
+                          context, ref, data.id, "/friend/decline");
                     },
                     icon: const Icon(
                       Icons.close,
@@ -170,7 +270,8 @@ class FriendElement extends StatelessWidget {
                     )),
                 IconButton(
                     onPressed: () {
-                      // TODO
+                      _acceptOrDeclineOrDeleteFriend(
+                          context, ref, data.id, "/friend/agree");
                     },
                     icon: const Icon(Icons.check, color: Colors.green)),
               ],
@@ -182,19 +283,20 @@ class FriendElement extends StatelessWidget {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: Text("確定與 ${data.name} 解解好友？"),
+                        title: Text("確定與 ${data.name} 解除好友？"),
                         actions: [
                           TextButton(
                               child: const Text("先不要"),
                               onPressed: () {
                                 Navigator.pop(context);
                               }),
-                          TextButton(
+                          OutlinedButton(
                               child: const Text(
                                 "確定",
-                                style: TextStyle(color: Colors.red),
                               ),
                               onPressed: () {
+                                _acceptOrDeclineOrDeleteFriend(
+                                    context, ref, data.id, "/friend/delete");
                                 Navigator.pop(context);
                                 // TODO
                               }),
@@ -204,5 +306,25 @@ class FriendElement extends StatelessWidget {
               },
             ),
     ));
+  }
+
+  static Future _acceptOrDeclineOrDeleteFriend(
+      BuildContext context, WidgetRef ref, int friendID, String request) async {
+    http.Response res = await http.post(uri(domain, request),
+        body: jsonEncode({
+          'session': ref.read(userDataProvider)?.session,
+          'friend_uid': friendID,
+        }));
+    debugPrint(res.body);
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      throw (res.statusCode);
+    }
+    Map<String, dynamic> j = jsonDecode(res.body);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(j['error'] != '' ? (j['error'] as String) : "成功"),
+        // TODO 刷新頁面
+      ));
+    }
   }
 }

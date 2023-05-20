@@ -10,6 +10,7 @@ import 'package:catch_cat/api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:localstorage/localstorage.dart';
 
 import 'data.dart';
 
@@ -17,11 +18,12 @@ void main() {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    fetchUserInfoFromLocalStorage(ref);
     return MaterialApp(
       title: '尋找貓貓',
       theme: ThemeData(
@@ -38,6 +40,21 @@ class MyApp extends StatelessWidget {
         "/friends": (context) => const FriendPage(),
       },
     );
+  }
+
+  Future fetchUserInfoFromLocalStorage(WidgetRef ref) async {
+    final storage = LocalStorage('cat');
+    // get from local storage
+    try {
+      String? data = await storage.getItem('user');
+      if (data != null) {
+        Map<String, dynamic> j = jsonDecode(data);
+        UserData user = UserData.fromMap(j);
+        ref.read(userDataProvider.notifier).state = user;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 }
 
@@ -133,22 +150,23 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
     if (res.statusCode != 200) {
       throw (res.statusCode);
     }
-    print(res.body);
+
+    debugPrint(res.body);
+
     Map<String, dynamic> j = jsonDecode(res.body);
     if (mounted && j['error'] != "") {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(j['error']),
       ));
+      return;
     }
-    UserData user = UserData(
-        id: j["uid"],
-        session: j['session'],
-        name: j["name"],
-        profile: j["profile"] == "" ? null : j["profile"],
-        email: j["email"],
-        verified: j["verified"],
-        rank: j["rank"],
-        cats: j["cats"]);
+
+    final storage = LocalStorage('cat');
+    // put in local storage
+    storage.setItem('user', res.body);
+
+    UserData user = UserData.fromMap(j);
+
     ref.read(userDataProvider.notifier).state = user;
     if (mounted) {
       Navigator.pushReplacementNamed(context, '/select');
