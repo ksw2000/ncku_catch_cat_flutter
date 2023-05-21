@@ -87,29 +87,22 @@ class _SelectPageState extends ConsumerState<SelectPage> {
   }
 
   Future<List<PlayThemeData>> _getPlayThemeList() async {
-    List<PlayThemeData> themeDataList = [];
-
     http.Response res = await http.get(
       uri(domain, '/theme_list'),
     );
     debugPrint(res.body);
-    if (res.statusCode == 200) {
-      // decode
-      Map<String, dynamic> j = jsonDecode(res.body);
+    if (res.statusCode != 200) return [];
+    // decode
+    Map<String, dynamic> j = jsonDecode(res.body);
 
-      // check if any error
-      if (mounted && j['error'] != "") {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(j['error']),
-        ));
-      }
-
-      j['list'].forEach((k) {
-        themeDataList.add(PlayThemeData(
-            name: k['name'], thumbnail: k['thumbnail'], id: k['theme_id']));
-      });
+    // check if any error
+    if (mounted && j['error'] != "") {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(j['error']),
+      ));
     }
-    return themeDataList;
+
+    return (j['list'] as List).map((e) => PlayThemeData.fromMap(e)).toList();
   }
 }
 
@@ -143,10 +136,6 @@ class PlayCard extends ConsumerWidget {
                 onTap: () {
                   ref.read(playDataProvider.notifier).state = data;
                   Navigator.pushNamed(context, '/play');
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (context) => PlayGround(data: widget.data)));
                 },
                 splashColor: Colors.white.withOpacity(0.3),
               ),

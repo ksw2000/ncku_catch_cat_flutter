@@ -3,14 +3,23 @@ import 'package:latlong2/latlong.dart';
 
 class PlayThemeData {
   PlayThemeData(
-      {required this.name,
-      required this.thumbnail,
-      required this.id,
-      this.cats});
+      {required this.name, required this.thumbnail, required this.id});
+  PlayThemeData.fromMap(Map<String, dynamic> j)
+      : name = j['name'],
+        thumbnail = j['thumbnail'],
+        id = j['theme_id'];
+
   final String name;
   final String thumbnail;
-  List<Cat>? cats = [];
   final int id; // for connect to database
+
+  // int numOfCaught() {
+  //   int i = 0;
+  //   cats?.forEach((e) {
+  //     if (e.isCaught) i++;
+  //   });
+  //   return i;
+  // }
 }
 
 StateProvider<PlayThemeData?> playDataProvider = StateProvider((ref) {
@@ -18,10 +27,38 @@ StateProvider<PlayThemeData?> playDataProvider = StateProvider((ref) {
 });
 
 class Cat {
-  Cat({required this.id, required this.position});
+  Cat(
+      {required this.kindID,
+      required this.weight,
+      required this.isCaught,
+      required this.id,
+      required this.position,
+      required this.thumbnail,
+      required this.name,
+      required this.description});
+  Cat.fromMap(Map<String, dynamic> j)
+      : id = j['cat_id'],
+        kindID = j['cat_kind_id'],
+        weight = j['weight'],
+        position = LatLng(j['lat'], j['lng']),
+        isCaught = j['is_caught'],
+        thumbnail = j['thumbnail'],
+        name = j['name'],
+        description = j['description'];
+
   final int id;
+  final int kindID;
+  final int weight;
   final LatLng position;
+  final bool isCaught;
+  final String thumbnail;
+  final String name;
+  final String description;
 }
+
+StateProvider<List<Cat>> catListDataProvider = StateProvider((ref) {
+  return [];
+});
 
 class UserData {
   UserData(
@@ -29,9 +66,10 @@ class UserData {
       required this.name,
       required this.email,
       this.profile,
-      required this.rank,
       required this.verified,
       required this.session,
+      required this.level,
+      required this.score,
       required this.cats});
 
   UserData.fromMap(Map<String, dynamic> j)
@@ -41,30 +79,23 @@ class UserData {
         profile = j["profile"] == "" ? null : j["profile"],
         email = j["email"],
         verified = j["verified"],
-        rank = j["rank"],
+        level = j["level"],
+        score = j["score"],
         cats = j["cats"];
 
   final int id;
   final String name;
   final String email;
-  final int rank;
   final bool verified;
   final String? profile;
   final String? session;
+  final int level;
+  final int score;
   final int cats;
 }
 
 StateProvider<UserData?> userDataProvider = StateProvider((ref) {
-  return UserData(
-    cats: 0,
-    name: 'INHPC',
-    email: 'algoalgogo@gmail.com',
-    id: 452108996911,
-    rank: 0,
-    verified: false,
-    session: '0',
-  );
-  // return null;
+  return null;
 });
 
 // user 1
@@ -122,14 +153,10 @@ class FriendData {
 //   return null;
 // });
 
-// List<FriendData> debugFriendDataList = <FriendData>[
-//   const FriendData(name: "侑", id: 0, level: 1, inviting: false),
-//   const FriendData(name: "步夢", id: 0, level: 2, inviting: false),
-//   const FriendData(name: "栞子", id: 0, level: 10, inviting: false),
-//   const FriendData(name: "かすみ", id: 0, level: 20, inviting: false),
-// ];
-
-// List<FriendData> debugFriendDataInvitingList = <FriendData>[
-//   const FriendData(name: "果林", id: 0, level: 1, inviting: true),
-//   const FriendData(name: "しずく", id: 0, level: 2, inviting: true),
-// ];
+int numOfCaught(List<Cat> cat) {
+  int i = 0;
+  for (var e in cat) {
+    if (e.isCaught) i++;
+  }
+  return i;
+}

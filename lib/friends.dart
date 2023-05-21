@@ -96,7 +96,7 @@ class _FriendPageState extends ConsumerState<FriendPage> {
 
   void _copyID() async {
     await Clipboard.setData(
-        ClipboardData(text: ref.watch(userDataProvider)?.id.toString() ?? ""));
+        ClipboardData(text: ref.read(userDataProvider)?.id.toString() ?? ""));
     if (mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('已複製')));
@@ -157,7 +157,7 @@ class _FriendPageState extends ConsumerState<FriendPage> {
     http.Response res = await http.post(
         uri(domain, accepted ? '/friends/list' : '/friends/inviting_me'),
         body: jsonEncode({
-          'session': ref.read(userDataProvider)?.session,
+          'session': ref.watch(userDataProvider)?.session,
         }));
     debugPrint(res.body);
 
@@ -312,7 +312,7 @@ class FriendElement extends ConsumerWidget {
       BuildContext context, WidgetRef ref, int friendID, String request) async {
     http.Response res = await http.post(uri(domain, request),
         body: jsonEncode({
-          'session': ref.read(userDataProvider)?.session,
+          'session': ref.watch(userDataProvider)?.session,
           'friend_uid': friendID,
         }));
     debugPrint(res.body);
