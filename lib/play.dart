@@ -116,13 +116,20 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
             MarkerLayer(markers: [
               Marker(
                 point: _currentPosition,
-                width: 20,
-                height: 20,
+                width: 15,
+                height: 15,
                 builder: (context) {
                   return const Icon(
-                    Icons.radio_button_checked,
-                    color: Colors.blue,
-                    size: 30,
+                    Icons.circle,
+                    color: Colors.lightBlue,
+                    shadows: [
+                      Shadow(
+                        color: Colors.white,
+                        blurRadius: 10,
+                        offset: Offset(0, 0),
+                      ),
+                    ],
+                    size: 15,
                   );
                 },
               ),
@@ -298,8 +305,6 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
                   children: [
                     Switch(
                       value: shareGPS,
-                      thumbColor:
-                          const MaterialStatePropertyAll<Color>(Colors.black),
                       onChanged: (bool value) {
                         setState(() {
                           shareGPS = value;
@@ -315,8 +320,6 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
                   children: [
                     Switch(
                       value: showFriendPosition,
-                      thumbColor:
-                          const MaterialStatePropertyAll<Color>(Colors.black),
                       onChanged: (bool value) {
                         setState(() {
                           showFriendPosition = value;
@@ -528,7 +531,10 @@ class FriendMarker extends StatelessWidget {
               border: Border.all(width: 3, color: Colors.white),
               shape: BoxShape.circle,
               image: DecorationImage(
-                  fit: BoxFit.fill, image: Image.asset(defaultProfile).image)),
+                  fit: BoxFit.fill,
+                  image: data.profile != null
+                      ? Image.network(data.profile!).image
+                      : Image.asset(defaultProfile).image)),
           child: InkWell(
             onTap: () {},
           )),

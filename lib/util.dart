@@ -29,7 +29,7 @@ String obscureDistance(int d) {
 }
 
 String humanReadTime(int time) {
-  int d = (time - DateTime.now().millisecondsSinceEpoch);
+  int d = (DateTime.now().millisecondsSinceEpoch ~/ 1000 - time);
   if (d < 60) {
     return '剛剛';
   } else if (d < 60 * 60) {

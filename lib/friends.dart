@@ -253,7 +253,12 @@ class FriendElement extends ConsumerWidget {
             const SizedBox(
               width: 8,
             ),
-            Text(data.name, style: const TextStyle(fontSize: 17))
+            Text(data.name, style: const TextStyle(fontSize: 17)),
+            const SizedBox(
+              width: 8,
+            ),
+            Text('${humanReadTime(data.lastLogin)}上線',
+                style: const TextStyle(fontSize: 13, color: Colors.brown)),
           ]),
       trailing: !accepted
           ? Row(
