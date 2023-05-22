@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:http/http.dart' as http;
+import 'package:catch_cat/util.dart';
 
 class PlayThemeData {
   PlayThemeData(
@@ -70,7 +74,8 @@ class UserData {
       required this.session,
       required this.level,
       required this.score,
-      required this.cats});
+      required this.cats,
+      required this.shareGPS});
 
   UserData.fromMap(Map<String, dynamic> j)
       : id = j["uid"],
@@ -81,7 +86,8 @@ class UserData {
         verified = j["verified"],
         level = j["level"],
         score = j["score"],
-        cats = j["cats"];
+        cats = j["cats"],
+        shareGPS = j["share_gps"];
 
   final int id;
   final String name;
@@ -92,6 +98,13 @@ class UserData {
   final int level;
   final int score;
   final int cats;
+  bool shareGPS;
+
+  void setShareGPS(bool flag) async {
+    http.Response res = await http.post(uri(domain, '/user/update/share_gps'),
+        body: jsonEncode({'session': session, 'share_or_not': flag}));
+    print(res.body);
+  }
 }
 
 StateProvider<UserData?> userDataProvider = StateProvider((ref) {
@@ -126,22 +139,31 @@ List<RankingData> debugRankDataList = <RankingData>[
 ];
 
 class FriendData {
-  const FriendData(
+  FriendData(
       {this.profile,
       required this.name,
       required this.id,
-      required this.level});
+      required this.level,
+      this.lastLogin = 0,
+      this.lat = 0,
+      this.lng = 0});
 
   FriendData.fromMap(Map<String, dynamic> j)
       : id = j["uid"],
         name = j["name"],
         profile = j["profile"] == "" ? null : j["profile"],
-        level = j["level"];
+        level = j["level"],
+        lastLogin = j["last_login"] ?? 0,
+        lat = j["lat"] ?? 0,
+        lng = j["lng"] ?? 0;
 
   final String name;
   final String? profile;
   final int id;
   final int level; // 好友 level
+  int lastLogin;
+  double lat;
+  double lng;
 }
 
 // StateProvider<List<FriendData>?> friendDataProvider = StateProvider((ref) {

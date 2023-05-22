@@ -6,7 +6,7 @@ import 'package:catch_cat/play.dart';
 import 'package:catch_cat/setting.dart';
 import 'package:catch_cat/ranking.dart';
 import 'package:catch_cat/friends.dart';
-import 'package:catch_cat/api.dart';
+import 'package:catch_cat/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -31,8 +31,8 @@ class MyApp extends ConsumerWidget {
         useMaterial3: true,
       ),
       routes: {
-        "/": (context) => const MyHomePage(),
-        "/select": (context) => const SelectPage(),
+        "/": (context) => const HomeOrSelectPage(),
+        // "/select": (context) => const SelectPage(),
         "/register": (context) => const RegisterPage(),
         "/play": (context) => const PlayGround(),
         "/play/ranking": (context) => const RankingPage(),
@@ -55,6 +55,18 @@ class MyApp extends ConsumerWidget {
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+}
+
+class HomeOrSelectPage extends ConsumerWidget {
+  const HomeOrSelectPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.watch(userDataProvider) == null) {
+      return const MyHomePage();
+    }
+    return const SelectPage();
   }
 }
 
@@ -129,12 +141,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                             child: const Text('登入')),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, '/select');
-                        },
-                        child: const Text('訪客登入'))
+                    // const SizedBox(height: 20),
+                    // TextButton(
+                    //     onPressed: () {
+                    //       Navigator.pushReplacementNamed(context, '/select');
+                    //     },
+                    //     child: const Text('訪客登入'))
                   ],
                 ),
               ))),
@@ -169,7 +181,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
 
     ref.read(userDataProvider.notifier).state = user;
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/select');
+      // Navigator.
+      Navigator.pushReplacementNamed(context, '/');
     }
   }
 }

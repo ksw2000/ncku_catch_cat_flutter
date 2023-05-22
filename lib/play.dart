@@ -9,7 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 
-import 'api.dart';
+import 'util.dart';
 
 class PlayGround extends ConsumerStatefulWidget {
   const PlayGround({super.key});
@@ -31,21 +31,26 @@ final isUserEnableGPSProvider = StateProvider<bool>((ref) {
   return true;
 });
 
+final _friendPositionMarkers = StateProvider<List<Marker>>((ref) {
+  return [];
+});
+
 class _PlayGroundState extends ConsumerState<PlayGround> {
-  LatLng currentPosition = LatLng(initLatitude, initLongitude);
+  LatLng _currentPosition = LatLng(initLatitude, initLongitude);
   Timer? _timer;
   final _mapController = MapController();
-
+  int timeCount = 0;
   PlayThemeData? data;
+  bool showFriendPosition = true;
 
   @override
   void initState() {
     super.initState();
     data = ref.read(playDataProvider);
-    updatePositionPeriodically();
+    _updatePositionPeriodically();
     // load cats
     if (data != null) {
-      loadCats(data!.id);
+      _loadCats(data!.id);
     }
   }
 
@@ -66,7 +71,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
   @override
   Widget build(BuildContext context) {
     if (_timer == null) {
-      updatePositionPeriodically();
+      _updatePositionPeriodically();
     }
 
     return Scaffold(
@@ -85,7 +90,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
         FlutterMap(
           mapController: _mapController,
           options: MapOptions(
-              center: currentPosition,
+              center: _currentPosition,
               zoom: initZoom,
               maxZoom: maxZoom,
               onPositionChanged: (MapPosition position, bool hasGesture) {
@@ -108,22 +113,21 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: 'com.example.app',
             ),
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: currentPosition,
-                  width: 20,
-                  height: 20,
-                  builder: (context) {
-                    return const Icon(
-                      Icons.radio_button_checked,
-                      color: Colors.blue,
-                      size: 30,
-                    );
-                  },
-                ),
-              ],
-            ),
+            MarkerLayer(markers: [
+              Marker(
+                point: _currentPosition,
+                width: 20,
+                height: 20,
+                builder: (context) {
+                  return const Icon(
+                    Icons.radio_button_checked,
+                    color: Colors.blue,
+                    size: 30,
+                  );
+                },
+              ),
+              ...ref.watch(_friendPositionMarkers)
+            ]),
           ],
         ),
         ref.watch(isUserEnableGPSProvider)
@@ -162,45 +166,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
                 bottom: 45,
                 left: 5,
                 child: InkWell(
-                    onTap: () {
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title:
-                                  Text(ref.watch(closestCatProvider)!.cat.name),
-                              content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Image.asset(
-                                      '${ref.watch(closestCatProvider)?.cat.thumbnail}',
-                                      width: 65,
-                                    ),
-                                    const SizedBox(
-                                      height: 15,
-                                    ),
-                                    Text(ref
-                                        .watch(closestCatProvider)!
-                                        .cat
-                                        .description),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                        '分數：${ref.watch(closestCatProvider)!.cat.weight} 距離：${ref.watch(closestCatProvider)!.distance} 公尺')
-                                  ]),
-                              actions: [
-                                OutlinedButton(
-                                    child: const Text(
-                                      "OK",
-                                    ),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    }),
-                              ],
-                            );
-                          });
-                    },
+                    onTap: _showCat,
                     child: TranslucentContainer(
                         child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -213,7 +179,9 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
                           height: 10,
                         ),
                         Text(
-                          '${ref.watch(closestCatProvider)?.distance.toString()}M',
+                          obscureDistance(
+                              ref.watch(closestCatProvider)?.distance.toInt() ??
+                                  0),
                           style: const TextStyle(fontSize: 18),
                         )
                       ],
@@ -224,9 +192,13 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
             child: TranslucentContainer(
                 child: Column(children: [
               IconButton(
+                onPressed: _showSetting,
+                icon: const Icon(Icons.settings),
+              ),
+              IconButton(
                 onPressed: () {
                   // move to the current position
-                  _mapController.move(currentPosition, initZoom);
+                  _mapController.move(_currentPosition, initZoom);
                   ref.read(fixGPSProvider.notifier).state = true;
                 },
                 icon: Icon(ref.watch(fixGPSProvider)
@@ -257,7 +229,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
           child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Text(
-                '${currentPosition.latitude}, ${currentPosition.longitude}',
+                '${_currentPosition.latitude}, ${_currentPosition.longitude}',
                 style: const TextStyle(color: Colors.grey),
               )),
         )
@@ -265,21 +237,131 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
     );
   }
 
-  void updatePositionPeriodically() {
+  void _showCat() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(ref.watch(closestCatProvider)!.cat.name),
+            content: Column(mainAxisSize: MainAxisSize.min, children: [
+              Image.asset(
+                '${ref.watch(closestCatProvider)?.cat.thumbnail}',
+                width: 65,
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Text(ref.watch(closestCatProvider)!.cat.description),
+              const SizedBox(
+                height: 5,
+              ),
+              Text(
+                  '分數：${ref.watch(closestCatProvider)!.cat.weight} 距離：${ref.watch(closestCatProvider)!.distance} 公尺'),
+              ref.watch(closestCatProvider) != null &&
+                      ref.watch(closestCatProvider)!.distance < 1000
+                  ? TextButton(
+                      onPressed: () async {
+                        if (ref.watch(closestCatProvider) != null) {
+                          await _catchCat(
+                              ref.watch(closestCatProvider)!.cat.id);
+                          // after catching update cat list
+                          _loadCats(data!.id);
+                        }
+                      },
+                      child: Text('抓'))
+                  : const SizedBox()
+            ]),
+            actions: [
+              OutlinedButton(
+                  child: const Text(
+                    "OK",
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  }),
+            ],
+          );
+        });
+  }
+
+  void _showSetting() {
+    bool shareGPS = ref.read(userDataProvider)?.shareGPS ?? false;
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('設定'),
+            content: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+              return Column(mainAxisSize: MainAxisSize.min, children: [
+                Row(
+                  children: [
+                    Switch(
+                      value: shareGPS,
+                      thumbColor:
+                          const MaterialStatePropertyAll<Color>(Colors.black),
+                      onChanged: (bool value) {
+                        setState(() {
+                          shareGPS = value;
+                        });
+                        ref.read(userDataProvider)?.setShareGPS(value);
+                      },
+                    ),
+                    const Text("向好友分享我的位置")
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Switch(
+                      value: showFriendPosition,
+                      thumbColor:
+                          const MaterialStatePropertyAll<Color>(Colors.black),
+                      onChanged: (bool value) {
+                        setState(() {
+                          showFriendPosition = value;
+                        });
+                        if (!value) {
+                          ref.read(_friendPositionMarkers.notifier).state = [];
+                        } else {
+                          // get friends position without waiting
+                          _getFriendsPosition();
+                        }
+                        showFriendPosition = value;
+                      },
+                    ),
+                    const Text("顯示好友的位置")
+                  ],
+                )
+              ]);
+            }),
+            actions: [
+              OutlinedButton(
+                  child: const Text(
+                    "OK",
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  }),
+            ],
+          );
+        });
+  }
+
+  void _updatePositionPeriodically() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      getPosition().then((position) {
-        currentPosition = LatLng(position.latitude, position.longitude);
+      _getPosition().then((position) {
+        _currentPosition = LatLng(position.latitude, position.longitude);
         if (mounted == false) return;
         if (ref.read(fixGPSProvider)) {
-          _mapController.move(currentPosition, _mapController.zoom);
+          _mapController.move(_currentPosition, _mapController.zoom);
         }
-        // setState(() {});
         // find the latest uncaught cat
         const Distance distance = Distance();
         double closestDistance = double.maxFinite;
         Cat? closetCat;
         ref.read(catListDataProvider).forEach((Cat e) {
-          double k = distance(e.position, currentPosition);
+          double k = distance(e.position, _currentPosition);
           if (k < closestDistance && !e.isCaught) {
             closestDistance = k;
             closetCat = e;
@@ -291,11 +373,20 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
         } else {
           ref.read(closestCatProvider.notifier).state = null;
         }
+        if (timeCount == 0) {
+          // share my position to server
+          _sharePositionToServer();
+          // get friends position from server
+          if (showFriendPosition) {
+            _getFriendsPosition();
+          }
+        }
+        timeCount = (timeCount + 1) % 30;
       }).onError((error, stackTrace) {});
     });
   }
 
-  Future<Position> getPosition() async {
+  Future<Position> _getPosition() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       // Location services are not enabled don't continue
@@ -332,7 +423,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
     return await Geolocator.getCurrentPosition();
   }
 
-  Future loadCats(int themeID) async {
+  Future _loadCats(int themeID) async {
     http.Response res = await http.post(uri(domain, '/theme'),
         body: jsonEncode({
           'session': ref.read(userDataProvider)?.session,
@@ -351,6 +442,51 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
     List<Cat> catData =
         (j['cat_list'] as List<dynamic>).map((e) => Cat.fromMap(e)).toList();
     ref.read(catListDataProvider.notifier).state = catData;
+  }
+
+  void _sharePositionToServer() async {
+    http.Response res = await http.post(uri(domain, '/user/update/gps'),
+        body: jsonEncode({
+          'session': ref.read(userDataProvider)?.session,
+          'lat': _currentPosition.latitude,
+          'lng': _currentPosition.longitude
+        }));
+    debugPrint(res.body);
+  }
+
+  Future _getFriendsPosition() async {
+    http.Response res = await http.post(uri(domain, '/friends/position'),
+        body: jsonEncode({
+          'session': ref.read(userDataProvider)?.session,
+        }));
+    debugPrint(res.body);
+    Map<String, dynamic> j = jsonDecode(res.body);
+    List<FriendData> friends =
+        (j['list'] as List).map((e) => FriendData.fromMap(e)).toList();
+    List<Marker> markers = [];
+    for (var e in friends) {
+      markers.add(Marker(
+        point: LatLng(e.lat, e.lng),
+        width: 150,
+        height: 40,
+        anchorPos: AnchorPos.align(AnchorAlign.right),
+        builder: (context) {
+          return FriendMarker(data: e);
+        },
+      ));
+    }
+    ref.read(_friendPositionMarkers.notifier).state = markers;
+  }
+
+  Future _catchCat(int catID) async {
+    http.Response res = await http.post(uri(domain, '/cat/catching'),
+        body: jsonEncode(
+            {'session': ref.read(userDataProvider)?.session, 'cat_id': catID}));
+    debugPrint(res.body);
+    Map<String, dynamic> j = jsonDecode(res.body);
+    if (j['error'] != '') {
+      throw (j['error']);
+    }
   }
 }
 
@@ -373,6 +509,68 @@ class TranslucentContainer extends StatelessWidget {
         decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.8),
             borderRadius: const BorderRadius.all(Radius.circular(5))),
-        child: Padding(padding: const EdgeInsets.all(10.0), child: child));
+        child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10.0),
+            child: child));
+  }
+}
+
+class FriendMarker extends StatelessWidget {
+  const FriendMarker({Key? key, required this.data}) : super(key: key);
+  final FriendData data;
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      Container(
+          width: 35.0,
+          height: 35.0,
+          decoration: BoxDecoration(
+              border: Border.all(width: 3, color: Colors.white),
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                  fit: BoxFit.fill, image: Image.asset(defaultProfile).image)),
+          child: InkWell(
+            onTap: () {},
+          )),
+      const SizedBox(width: 10),
+      Column(
+          // mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(children: [
+              Text(data.name,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      foreground: Paint()
+                        ..style = PaintingStyle.stroke
+                        ..color = Colors.white
+                        ..strokeWidth = 2,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold)),
+              Text(data.name,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.bold))
+            ]),
+            Stack(
+              children: [
+                Text(humanReadTime(data.lastLogin),
+                    style: TextStyle(
+                        foreground: Paint()
+                          ..style = PaintingStyle.stroke
+                          ..color = Colors.white
+                          ..strokeWidth = 2,
+                        overflow: TextOverflow.ellipsis,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold)),
+                Text(humanReadTime(data.lastLogin),
+                    style: const TextStyle(
+                        overflow: TextOverflow.ellipsis,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold)),
+              ],
+            )
+          ])
+    ]);
   }
 }

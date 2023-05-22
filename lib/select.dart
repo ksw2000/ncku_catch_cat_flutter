@@ -4,7 +4,7 @@ import 'package:catch_cat/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:catch_cat/api.dart';
+import 'package:catch_cat/util.dart';
 import 'package:http/http.dart' as http;
 
 class SelectPage extends ConsumerStatefulWidget {
@@ -257,6 +257,7 @@ class UserField extends ConsumerWidget {
     final int caughtCats = ref.watch(userDataProvider)?.cats ?? 0;
     final String? profile = ref.watch(userDataProvider)?.profile;
     final String email = ref.watch(userDataProvider)?.email ?? '';
+    final int level = ref.watch(userDataProvider)?.level ?? 0;
 
     return ref.watch(userDataProvider) == null
         ? const SizedBox()
@@ -333,12 +334,10 @@ class UserField extends ConsumerWidget {
                   const SizedBox(
                     width: 10,
                   ),
-                  TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        '圖鑑',
-                        style: TextStyle(fontSize: 15),
-                      ))
+                  Text(
+                    'Lv. $level',
+                    style: const TextStyle(fontSize: 15),
+                  ),
                 ]),
               ])
             ]),
