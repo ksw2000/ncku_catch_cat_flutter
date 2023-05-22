@@ -90,8 +90,8 @@ class UserData {
         shareGPS = j["share_gps"];
 
   final int id;
-  final String name;
-  final String email;
+  String name;
+  String email;
   final bool verified;
   final String? profile;
   final String? session;
@@ -165,15 +165,6 @@ class FriendData {
   double lat;
   double lng;
 }
-
-// StateProvider<List<FriendData>?> friendDataProvider = StateProvider((ref) {
-//   return null;
-// });
-
-// StateProvider<List<FriendData>?> friendInvitingDataProvider =
-//     StateProvider((ref) {
-//   return null;
-// });
 
 int numOfCaught(List<Cat> cat) {
   int i = 0;

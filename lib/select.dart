@@ -109,11 +109,7 @@ class _SelectPageState extends ConsumerState<SelectPage> {
 class PlayCard extends ConsumerWidget {
   const PlayCard({super.key, required this.data});
   final PlayThemeData data;
-//   @override
-//   State<PlayCard> createState() => _PlayCardState();
-// }
 
-// class _PlayCardState extends State<PlayCard> {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
@@ -253,12 +249,7 @@ class UserField extends ConsumerWidget {
   const UserField({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final String name = ref.watch(userDataProvider)?.name ?? '';
-    final int caughtCats = ref.watch(userDataProvider)?.cats ?? 0;
-    final String? profile = ref.watch(userDataProvider)?.profile;
-    final String email = ref.watch(userDataProvider)?.email ?? '';
-    final int level = ref.watch(userDataProvider)?.level ?? 0;
-
+    final data = ref.watch(userDataProvider);
     return ref.watch(userDataProvider) == null
         ? const SizedBox()
         : Padding(
@@ -270,9 +261,9 @@ class UserField extends ConsumerWidget {
                   child: Ink(
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: profile != null
+                        image: data!.profile != null
                             ? Image.network(
-                                profile,
+                                data.profile!,
                                 width: 100,
                                 scale: 1,
                               ).image
@@ -297,7 +288,7 @@ class UserField extends ConsumerWidget {
               ),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(
-                  name,
+                  data.name,
                   style: const TextStyle(
                       fontSize: 20, fontWeight: FontWeight.bold),
                 ),
@@ -313,7 +304,7 @@ class UserField extends ConsumerWidget {
                     const SizedBox(
                       width: 10,
                     ),
-                    Text(email, style: const TextStyle(fontSize: 15)),
+                    Text(data.email, style: const TextStyle(fontSize: 15)),
                   ],
                 ),
                 const SizedBox(
@@ -328,14 +319,14 @@ class UserField extends ConsumerWidget {
                     width: 5,
                   ),
                   Text(
-                    '已抓到 $caughtCats 隻貓貓',
+                    '已抓到 ${data.cats} 隻貓貓',
                     style: const TextStyle(fontSize: 15),
                   ),
                   const SizedBox(
                     width: 10,
                   ),
                   Text(
-                    'Lv. $level',
+                    'Lv. ${data.level}',
                     style: const TextStyle(fontSize: 15),
                   ),
                 ]),

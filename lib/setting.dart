@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catch_cat/data.dart';
+import 'package:catch_cat/util.dart';
+import 'package:http/http.dart' as http;
 
 class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
@@ -13,7 +17,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _oriPwdCtrl = TextEditingController();
-  final _pwdCtrl = TextEditingController();
+  final _newPwdCtrl = TextEditingController();
   final _confirmPwdCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
 
@@ -22,7 +26,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     _nameCtrl.dispose();
     _emailCtrl.dispose();
     _oriPwdCtrl.dispose();
-    _pwdCtrl.dispose();
+    _newPwdCtrl.dispose();
     _confirmPwdCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
@@ -34,18 +38,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       return const SizedBox();
     }
 
-    final bool verified = ref.watch(userDataProvider)!.verified;
-    final String name = ref.watch(userDataProvider)!.name;
-    final String? profile = ref.watch(userDataProvider)!.profile;
-    final String email = ref.watch(userDataProvider)!.email;
+    final data = ref.watch(userDataProvider)!;
+
     const titleTextStyle = TextStyle(fontSize: 20);
     const separator = SizedBox(
       height: 20,
     );
 
     // set initialize value
-    _nameCtrl.text = name;
-    _emailCtrl.text = email;
+    _nameCtrl.text = data.name;
+    _emailCtrl.text = data.email;
 
     return Scaffold(
         appBar: AppBar(
@@ -71,9 +73,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 child: Ink(
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
-                                      image: profile != null
+                                      image: data.profile != null
                                           ? Image.network(
-                                              profile,
+                                              data.profile!,
                                               width: 100,
                                               scale: 1,
                                             ).image
@@ -112,7 +114,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             ),
                             separator,
                             OutlinedButton(
-                                onPressed: () {}, child: const Text('修改')),
+                                onPressed: _updateName,
+                                child: const Text('修改')),
                             separator,
                             const Text('修改 Email', style: titleTextStyle),
                             separator,
@@ -127,7 +130,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             ),
                             separator,
                             OutlinedButton(
-                                onPressed: () {}, child: const Text('修改')),
+                                onPressed: _updateEmail,
+                                child: const Text('修改')),
                             separator,
                             const Text(
                               '修改密碼',
@@ -146,13 +150,13 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             ),
                             separator,
                             TextField(
-                              controller: _pwdCtrl,
+                              controller: _newPwdCtrl,
                               obscureText: true,
                               enableSuggestions: false,
                               autocorrect: false,
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: '密碼',
+                                hintText: '新密碼',
                               ),
                             ),
                             separator,
@@ -168,8 +172,84 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             ),
                             separator,
                             OutlinedButton(
-                                onPressed: () {}, child: const Text('修改')),
+                                onPressed: _updatePassword,
+                                child: const Text('修改')),
                           ],
                         )))))));
+  }
+
+  Future _updateName() async {
+    http.Response res = await http.post(uri(domain, '/user/update/name'),
+        body: jsonEncode({
+          "session": ref.read(userDataProvider)?.session ?? "",
+          "name": _nameCtrl.text
+        }));
+    debugPrint(res.body);
+    Map<String, dynamic> j = jsonDecode(res.body);
+    if (context.mounted && j['error'] != "") {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(j['error']),
+      ));
+      return;
+    }
+    if (context.mounted && res.statusCode == 201) {
+      ref.read(userDataProvider.notifier).state!.name = _nameCtrl.text;
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("修改成功"),
+      ));
+      return;
+    }
+  }
+
+  Future _updatePassword() async {
+    http.Response res = await http.post(uri(domain, '/user/update/password'),
+        body: jsonEncode({
+          "session": ref.read(userDataProvider)?.session ?? "",
+          "original_password": _oriPwdCtrl.text,
+          "new_password": _newPwdCtrl.text,
+          "confirm_password": _confirmPwdCtrl.text
+        }));
+    debugPrint(res.body);
+    Map<String, dynamic> j = jsonDecode(res.body);
+    if (context.mounted && j['error'] != "") {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(j['error']),
+      ));
+      return;
+    }
+    if (context.mounted && res.statusCode == 201) {
+      _oriPwdCtrl.clear();
+      _newPwdCtrl.clear();
+      _confirmPwdCtrl.clear();
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("修改成功"),
+      ));
+      return;
+    }
+  }
+
+  Future _updateEmail() async {
+    http.Response res = await http.post(uri(domain, '/user/update/email'),
+        body: jsonEncode({
+          "session": ref.read(userDataProvider)?.session ?? "",
+          "email": _emailCtrl.text,
+        }));
+    debugPrint(res.body);
+    Map<String, dynamic> j = jsonDecode(res.body);
+    if (context.mounted && j['error'] != "") {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(j['error']),
+      ));
+      return;
+    }
+    if (context.mounted && res.statusCode == 201) {
+      ref.read(userDataProvider.notifier).state!.email = _emailCtrl.text;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("修改成功"),
+      ));
+      return;
+    }
   }
 }
