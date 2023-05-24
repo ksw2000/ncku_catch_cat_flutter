@@ -93,7 +93,7 @@ class UserData {
   String name;
   String email;
   final bool verified;
-  final String? profile;
+  String? profile;
   final String? session;
   final int level;
   final int score;
@@ -144,6 +144,10 @@ class FriendData {
       required this.name,
       required this.id,
       required this.level,
+      required this.cats,
+      required this.score,
+      this.themeCats = 0,
+      this.themeScore = 0,
       this.lastLogin = 0,
       this.lat = 0,
       this.lng = 0});
@@ -153,6 +157,10 @@ class FriendData {
         name = j["name"],
         profile = j["profile"] == "" ? null : j["profile"],
         level = j["level"],
+        cats = j["cats"],
+        score = j["score"],
+        themeCats = j["theme_cats"],
+        themeScore = j["theme_score"],
         lastLogin = j["last_login"] ?? 0,
         lat = j["lat"] ?? 0,
         lng = j["lng"] ?? 0;
@@ -161,10 +169,32 @@ class FriendData {
   final String? profile;
   final int id;
   final int level; // 好友 level
+  final int cats; // 好友所抓到的貓的數
+  final int score; // 好友的分數
+  int themeCats; // 某個地圖中所獲取的貓貓數
+  int themeScore; // 芋個地圖中所獲取的貓貓總分
   int lastLogin;
   double lat;
   double lng;
 }
+
+// class RankingData {
+//   RankingData(
+//       {required this.uid,
+//       required this.name,
+//       required this.score,
+//       required this.cats});
+//   RankingData.fromMap(Map<String, dynamic> j)
+//       : uid = j['uid'],
+//         name = j['name'],
+//         score = j['score'],
+//         cats = j['cats'];
+
+//   final int uid;
+//   final String name;
+//   final int score;
+//   final int cats;
+// }
 
 int numOfCaught(List<Cat> cat) {
   int i = 0;

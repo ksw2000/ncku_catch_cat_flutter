@@ -1,9 +1,10 @@
 import 'dart:convert';
-
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catch_cat/data.dart';
 import 'package:catch_cat/util.dart';
+import 'package:catch_cat/profile.dart';
 import 'package:http/http.dart' as http;
 
 class SettingPage extends ConsumerStatefulWidget {
@@ -38,16 +39,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       return const SizedBox();
     }
 
-    final data = ref.watch(userDataProvider)!;
-
     const titleTextStyle = TextStyle(fontSize: 20);
     const separator = SizedBox(
       height: 20,
     );
 
     // set initialize value
-    _nameCtrl.text = data.name;
-    _emailCtrl.text = data.email;
+    _nameCtrl.text = ref.read(userDataProvider)!.name;
+    _emailCtrl.text = ref.read(userDataProvider)!.email;
 
     return Scaffold(
         appBar: AppBar(
@@ -66,38 +65,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Center(
-                              child: SizedBox(
-                                height: 100,
-                                width: 100,
-                                child: Ink(
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: data.profile != null
-                                          ? Image.network(
-                                              data.profile!,
-                                              width: 100,
-                                              scale: 1,
-                                            ).image
-                                          : Image.asset(
-                                              defaultProfile,
-                                              width: 100,
-                                              scale: 1,
-                                            ).image,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(10)),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      //TODO
-                                    },
-                                    splashColor: Colors.white.withOpacity(0.3),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            const Center(child: ProfilePhoto(size: 100)),
                             separator,
                             const Text(
                               '修改暱稱',

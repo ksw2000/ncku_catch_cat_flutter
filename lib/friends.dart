@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:catch_cat/util.dart';
 import 'package:catch_cat/data.dart';
+import 'package:catch_cat/friend.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -217,7 +218,7 @@ class FriendElement extends ConsumerWidget {
               image: DecorationImage(
                 image: data.profile != null
                     ? Image.network(
-                        data.profile!,
+                        uri(domain, data.profile!).toString(),
                         width: 50,
                       ).image
                     : Image.asset(
@@ -230,7 +231,7 @@ class FriendElement extends ConsumerWidget {
             ),
             child: InkWell(
               onTap: () {
-                //TODO
+                showFriendInfo(context, data, false);
               },
               splashColor: Colors.white.withOpacity(0.3),
             ),

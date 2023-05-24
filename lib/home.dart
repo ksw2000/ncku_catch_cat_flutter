@@ -5,15 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:catch_cat/util.dart';
+import 'package:catch_cat/profile.dart';
 import 'package:http/http.dart' as http;
+import 'package:localstorage/localstorage.dart';
 
-class SelectPage extends ConsumerStatefulWidget {
-  const SelectPage({super.key});
+class HomePage extends ConsumerStatefulWidget {
+  const HomePage({super.key});
   @override
-  ConsumerState<SelectPage> createState() => _SelectPageState();
+  ConsumerState<HomePage> createState() => _SelectPageState();
 }
 
-class _SelectPageState extends ConsumerState<SelectPage> {
+class _SelectPageState extends ConsumerState<HomePage> {
   final scrollCtrl = ScrollController();
   @override
   void dispose() {
@@ -223,6 +225,10 @@ class MyDrawer extends ConsumerWidget {
                       ));
                       return;
                     }
+                    // clear user data in local storage
+                    final storage = LocalStorage('cat');
+                    storage.deleteItem('session');
+
                     // clear user data
                     ref.read(userDataProvider.notifier).state = null;
                     // goto home page(login page)
@@ -255,40 +261,15 @@ class UserField extends ConsumerWidget {
         : Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: data!.profile != null
-                            ? Image.network(
-                                data.profile!,
-                                width: 100,
-                                scale: 1,
-                              ).image
-                            : Image.asset(
-                                defaultProfile,
-                                width: 100,
-                                scale: 1,
-                              ).image,
-                        fit: BoxFit.cover,
-                      ),
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        //TODO
-                      },
-                      splashColor: Colors.white.withOpacity(0.3),
-                    ),
-                  )),
+              const ProfilePhoto(
+                size: 100,
+              ),
               const SizedBox(
                 width: 20,
               ),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(
-                  data.name,
+                  data!.name,
                   style: const TextStyle(
                       fontSize: 20, fontWeight: FontWeight.bold),
                 ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:catch_cat/friend.dart';
 import 'package:flutter/material.dart';
 import 'package:catch_cat/data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,16 +99,16 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
                   ref.read(fixGPSProvider.notifier).state = false;
                 }
               }),
-          nonRotatedChildren: [
-            RichAttributionWidget(
-              attributions: [
-                TextSourceAttribution('OpenStreetMap contributors',
-                    onTap: () => {
-                          //launchUrl(Uri.parse('https://openstreetmap.org/copyright')
-                        }),
-              ],
-            ),
-          ],
+          // nonRotatedChildren: [
+          //   RichAttributionWidget(
+          //     attributions: [
+          //       TextSourceAttribution('OpenStreetMap contributors',
+          //           onTap: () => {
+          //                 //launchUrl(Uri.parse('https://openstreetmap.org/copyright')
+          //               }),
+          //     ],
+          //   ),
+          // ],
           children: [
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -265,7 +266,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
               Text(
                   '分數：${ref.watch(closestCatProvider)!.cat.weight} 距離：${ref.watch(closestCatProvider)!.distance} 公尺'),
               ref.watch(closestCatProvider) != null &&
-                      ref.watch(closestCatProvider)!.distance < 1000
+                      ref.watch(closestCatProvider)!.distance < 10000
                   ? TextButton(
                       onPressed: () async {
                         if (ref.watch(closestCatProvider) != null) {
@@ -461,6 +462,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
     http.Response res = await http.post(uri(domain, '/friends/position'),
         body: jsonEncode({
           'session': ref.read(userDataProvider)?.session,
+          'theme_id': ref.read(playDataProvider)?.id
         }));
     debugPrint(res.body);
     Map<String, dynamic> j = jsonDecode(res.body);
@@ -533,10 +535,13 @@ class FriendMarker extends StatelessWidget {
               image: DecorationImage(
                   fit: BoxFit.fill,
                   image: data.profile != null
-                      ? Image.network(data.profile!).image
+                      ? Image.network(uri(domain, data.profile!).toString())
+                          .image
                       : Image.asset(defaultProfile).image)),
           child: InkWell(
-            onTap: () {},
+            onTap: () {
+              showFriendInfo(context, data, true);
+            },
           )),
       const SizedBox(width: 10),
       Column(

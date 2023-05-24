@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:catch_cat/register.dart';
-import 'package:catch_cat/select.dart';
+import 'package:catch_cat/home.dart';
 import 'package:catch_cat/play.dart';
 import 'package:catch_cat/setting.dart';
 import 'package:catch_cat/ranking.dart';
@@ -18,12 +18,11 @@ void main() {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends ConsumerWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    fetchUserInfoFromLocalStorage(ref);
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: '尋找貓貓',
       theme: ThemeData(
@@ -31,8 +30,7 @@ class MyApp extends ConsumerWidget {
         useMaterial3: true,
       ),
       routes: {
-        "/": (context) => const HomeOrSelectPage(),
-        // "/select": (context) => const SelectPage(),
+        "/": (context) => const Middle(),
         "/register": (context) => const RegisterPage(),
         "/play": (context) => const PlayGround(),
         "/play/ranking": (context) => const RankingPage(),
@@ -41,14 +39,41 @@ class MyApp extends ConsumerWidget {
       },
     );
   }
+}
 
-  Future fetchUserInfoFromLocalStorage(WidgetRef ref) async {
+class Middle extends ConsumerStatefulWidget {
+  const Middle({Key? key}) : super(key: key);
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _MiddleState();
+}
+
+class _MiddleState extends ConsumerState<Middle> {
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserInfo();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (ref.watch(userDataProvider) == null) {
+      return const LoginPage();
+    }
+    return const HomePage();
+  }
+
+  Future _fetchUserInfo() async {
+    if (ref.read(userDataProvider) != null) return;
     final storage = LocalStorage('cat');
     // get from local storage
     try {
-      String? data = await storage.getItem('user');
-      if (data != null) {
-        Map<String, dynamic> j = jsonDecode(data);
+      String? session = await storage.getItem('session');
+      if (session != null) {
+        http.Response res = await http.post(uri(domain, '/me'),
+            body: jsonEncode({'session': session}));
+        debugPrint(res.body);
+        Map<String, dynamic> j = jsonDecode(res.body);
         UserData user = UserData.fromMap(j);
         ref.read(userDataProvider.notifier).state = user;
       }
@@ -58,26 +83,14 @@ class MyApp extends ConsumerWidget {
   }
 }
 
-class HomeOrSelectPage extends ConsumerWidget {
-  const HomeOrSelectPage({Key? key}) : super(key: key);
+class LoginPage extends ConsumerStatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.watch(userDataProvider) == null) {
-      return const MyHomePage();
-    }
-    return const SelectPage();
-  }
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class MyHomePage extends ConsumerStatefulWidget {
-  const MyHomePage({super.key});
-
-  @override
-  ConsumerState<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends ConsumerState<MyHomePage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final emailCtrl = TextEditingController();
   final pwdCtrl = TextEditingController();
 
@@ -141,12 +154,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                             child: const Text('登入')),
                       ],
                     ),
-                    // const SizedBox(height: 20),
-                    // TextButton(
-                    //     onPressed: () {
-                    //       Navigator.pushReplacementNamed(context, '/select');
-                    //     },
-                    //     child: const Text('訪客登入'))
                   ],
                 ),
               ))),
@@ -173,15 +180,14 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
       return;
     }
 
-    final storage = LocalStorage('cat');
-    // put in local storage
-    storage.setItem('user', res.body);
-
     UserData user = UserData.fromMap(j);
+
+    // put in local storage
+    final storage = LocalStorage('cat');
+    storage.setItem('session', user.session);
 
     ref.read(userDataProvider.notifier).state = user;
     if (mounted) {
-      // Navigator.
       Navigator.pushReplacementNamed(context, '/');
     }
   }

@@ -36,7 +36,9 @@ String humanReadTime(int time) {
     return '${d ~/ 60}分鐘前';
   } else if (d < 24 * 60 * 60) {
     return '${d ~/ 3660}小時前';
-  } else {
+  } else if (d < 30 * 24 * 60 * 60) {
     return '${d ~/ (3660 * 24)}天前';
+  } else {
+    return '超過三十天';
   }
 }

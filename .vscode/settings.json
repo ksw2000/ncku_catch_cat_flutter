@@ -3,6 +3,7 @@
         "autocorrect",
         "geolocator",
         "latlong",
+        "localstorage",
         "riverpod"
     ]
 }
