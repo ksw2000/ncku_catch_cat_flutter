@@ -16,14 +16,6 @@ class PlayThemeData {
   final String name;
   final String thumbnail;
   final int id; // for connect to database
-
-  // int numOfCaught() {
-  //   int i = 0;
-  //   cats?.forEach((e) {
-  //     if (e.isCaught) i++;
-  //   });
-  //   return i;
-  // }
 }
 
 StateProvider<PlayThemeData?> playDataProvider = StateProvider((ref) {
@@ -54,6 +46,30 @@ class Cat {
   final int kindID;
   final int weight;
   final LatLng position;
+  final bool isCaught;
+  final String thumbnail;
+  final String name;
+  final String description;
+}
+
+class CatKindData {
+  CatKindData(
+      {required this.kindID,
+      required this.weight,
+      required this.isCaught,
+      required this.thumbnail,
+      required this.name,
+      required this.description});
+  CatKindData.fromMap(Map<String, dynamic> j)
+      : kindID = j['cat_kind_id'],
+        weight = j['weight'],
+        isCaught = j['is_caught'],
+        thumbnail = j['thumbnail'],
+        name = j['name'],
+        description = j['description'];
+
+  final int kindID;
+  final int weight;
   final bool isCaught;
   final String thumbnail;
   final String name;

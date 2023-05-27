@@ -171,7 +171,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
         ref.watch(closestCatProvider) == null
             ? const SizedBox()
             : Positioned(
-                bottom: 45,
+                bottom: 10,
                 left: 5,
                 child: InkWell(
                     onTap: _showCat,
@@ -196,7 +196,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
                     )))),
         Positioned(
             right: 5,
-            bottom: 45,
+            bottom: 10,
             child: TranslucentContainer(
                 child: Column(children: [
               IconButton(
@@ -232,15 +232,15 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
                   },
                   icon: const Icon(Icons.remove))
             ]))),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Text(
-                '${_currentPosition.latitude}, ${_currentPosition.longitude}',
-                style: const TextStyle(color: Colors.grey),
-              )),
-        )
+        // Align(
+        //   alignment: Alignment.bottomCenter,
+        //   child: Padding(
+        //       padding: const EdgeInsets.symmetric(vertical: 10),
+        //       child: Text(
+        //         '${_currentPosition.latitude}, ${_currentPosition.longitude}',
+        //         style: const TextStyle(color: Colors.grey),
+        //       )),
+        // )
       ]),
     );
   }
@@ -265,6 +265,9 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
               ),
               Text(
                   '分數：${ref.watch(closestCatProvider)!.cat.weight} 距離：${ref.watch(closestCatProvider)!.distance} 公尺'),
+              const SizedBox(
+                height: 5,
+              ),
               ref.watch(closestCatProvider) != null &&
                       ref.watch(closestCatProvider)!.distance < 10000
                   ? TextButton(
@@ -276,7 +279,19 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
                           _loadCats(data!.id);
                         }
                       },
-                      child: Text('抓'))
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.front_hand,
+                            size: 14,
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text('抓貓貓')
+                        ],
+                      ))
                   : const SizedBox()
             ]),
             actions: [

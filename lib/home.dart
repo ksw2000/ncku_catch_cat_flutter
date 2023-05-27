@@ -37,7 +37,7 @@ class _SelectPageState extends ConsumerState<HomePage> {
                   controller: scrollCtrl,
                   child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 20.0),
+                          vertical: 10.0, horizontal: 10.0),
                       child: Column(
                         children: [
                           const UserField(),
@@ -194,8 +194,7 @@ class MyDrawer extends ConsumerWidget {
                   leading: const Icon(Icons.photo_library),
                   title: const Text('圖鑑'),
                   onTap: () {
-                    // Update the state of the app.
-                    // ...
+                    Navigator.pushNamed(context, '/album');
                   },
                 )
               : const SizedBox(),

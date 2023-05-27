@@ -48,7 +48,7 @@ class _FriendPageState extends ConsumerState<FriendPage> {
                     controller: _scrollCtrl,
                     child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            vertical: 20, horizontal: 20),
+                            vertical: 10, horizontal: 10),
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -158,7 +158,7 @@ class _FriendPageState extends ConsumerState<FriendPage> {
     http.Response res = await http.post(
         uri(domain, accepted ? '/friends/list' : '/friends/inviting_me'),
         body: jsonEncode({
-          'session': ref.watch(userDataProvider)?.session,
+          'session': ref.read(userDataProvider)?.session,
         }));
     debugPrint(res.body);
 
@@ -194,6 +194,8 @@ class _FriendPageState extends ConsumerState<FriendPage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(j['error']),
       ));
+    } else {
+      setState(() {});
     }
   }
 }

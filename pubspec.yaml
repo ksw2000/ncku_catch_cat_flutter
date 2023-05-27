@@ -82,7 +82,7 @@ flutter:
     - assets/themes/Confucius Temple.png
     - assets/themes/Houtong Cats Village.jpg
     - assets/images/defaultProfile.png
-
+    - assets/images/cat-not-caught.gif
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
