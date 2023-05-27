@@ -194,24 +194,6 @@ class FriendData {
   double lng;
 }
 
-// class RankingData {
-//   RankingData(
-//       {required this.uid,
-//       required this.name,
-//       required this.score,
-//       required this.cats});
-//   RankingData.fromMap(Map<String, dynamic> j)
-//       : uid = j['uid'],
-//         name = j['name'],
-//         score = j['score'],
-//         cats = j['cats'];
-
-//   final int uid;
-//   final String name;
-//   final int score;
-//   final int cats;
-// }
-
 int numOfCaught(List<Cat> cat) {
   int i = 0;
   for (var e in cat) {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:catch_cat/register.dart';
@@ -51,10 +52,20 @@ class Middle extends ConsumerStatefulWidget {
 }
 
 class _MiddleState extends ConsumerState<Middle> {
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
-    _fetchUserInfo();
+    _fetchUserInfo().then((_) {
+      _updateLastLoginPeriodically();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -72,7 +83,7 @@ class _MiddleState extends ConsumerState<Middle> {
     try {
       String? session = await storage.getItem('session');
       if (session != null) {
-        http.Response res = await http.post(uri(domain, '/me'),
+        http.Response res = await http.post(uri(domain, '/user/me'),
             body: jsonEncode({'session': session}));
         debugPrint(res.body);
         Map<String, dynamic> j = jsonDecode(res.body);
@@ -82,6 +93,16 @@ class _MiddleState extends ConsumerState<Middle> {
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  Future _updateLastLoginPeriodically() async {
+    _timer = Timer.periodic(const Duration(seconds: 60), (timer) async {
+      if (ref.read(userDataProvider) != null) {
+        final res = await http.post(uri(domain, '/user/update/last_login'),
+            body: jsonEncode({"session": ref.read(userDataProvider)?.session}));
+        debugPrint(res.body);
+      }
+    });
   }
 }
 
