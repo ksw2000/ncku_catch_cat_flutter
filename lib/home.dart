@@ -26,7 +26,7 @@ class _SelectPageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer: const MyDrawer(),
+        drawer: const SafeArea(child: MyDrawer()),
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
@@ -155,21 +155,22 @@ class MyDrawer extends ConsumerWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          SizedBox(
-            height: 160,
-            child: DrawerHeader(
-                child: Column(
-              children: [
-                Image.asset('assets/images/logo.png', height: 80),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Text(
-                  '尋找貓貓',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            )),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20.0),
+            child: Center(
+              child: Column(
+                children: [
+                  Image.asset('assets/images/logo.png', height: 80),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const Text(
+                    '尋找貓貓',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
           ),
           user != null
               ? ListTile(
