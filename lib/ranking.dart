@@ -28,7 +28,8 @@ class _RankingPageState extends ConsumerState<RankingPage> {
                     const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: Center(
                     child: FutureBuilder<List<FriendData>>(
-                  future: _getRankList(ref.read(playDataProvider)?.id ?? 0),
+                  future: _getRankList(ref.watch(playDataProvider)?.id ?? 0,
+                      ref.watch(userDataProvider)?.session ?? ""),
                   builder: (BuildContext context,
                       AsyncSnapshot<List<FriendData>> snapshot) {
                     if (snapshot.hasData) {
@@ -68,10 +69,11 @@ class _RankingPageState extends ConsumerState<RankingPage> {
                 )))));
   }
 
-  Future<List<FriendData>> _getRankList(int themeID) async {
+  Future<List<FriendData>> _getRankList(int themeID, String session) async {
+    debugPrint(session);
     http.Response res = await http.post(uri(domain, '/friends/theme_rank'),
         body: jsonEncode({
-          'session': ref.watch(userDataProvider)?.session,
+          'session': session,
           'theme_id': themeID,
         }));
     debugPrint(res.body);

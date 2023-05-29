@@ -82,7 +82,7 @@ class UserData {
   String email;
   final bool verified;
   String? profile;
-  final String? session;
+  String? session;
   final int level;
   final int score;
   final int cats;

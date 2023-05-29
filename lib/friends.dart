@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/retry.dart';
 
 class FriendPage extends ConsumerStatefulWidget {
   const FriendPage({Key? key}) : super(key: key);
@@ -172,20 +171,9 @@ class _FriendPageState extends ConsumerState<FriendPage> {
     if (j['error'] != "") {
       debugPrint(j['error']);
     }
-
-    try {
-      debugPrint("$j");
-      List<FriendData> d = (j['list'] as List).map<FriendData>((e) {
-        FriendData f = FriendData.fromMap(e);
-        debugPrint("$f");
-        return f;
-      }).toList();
-      return d;
-    } catch (e) {
-      debugPrint("$accepted line182");
-      debugPrint("$e");
-    }
-    return [];
+    return (j['list'] as List)
+        .map<FriendData>((e) => FriendData.fromMap(e))
+        .toList();
   }
 
   _inviteFriend() async {

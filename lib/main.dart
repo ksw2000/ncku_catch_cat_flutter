@@ -84,13 +84,17 @@ class _MiddleState extends ConsumerState<Middle> {
     final storage = LocalStorage('cat');
     // get from local storage
     try {
+      await storage.ready;
       String? session = await storage.getItem('session');
       if (session != null) {
+        // /user/me does not return session value
+        // set session value at front-end service
         http.Response res = await http.post(uri(domain, '/user/me'),
             body: jsonEncode({'session': session}));
         debugPrint(res.body);
         Map<String, dynamic> j = jsonDecode(res.body);
         UserData user = UserData.fromMap(j);
+        user.session = session;
         ref.read(userDataProvider.notifier).state = user;
       }
     } catch (e) {
@@ -219,7 +223,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     // put in local storage
     final storage = LocalStorage('cat');
-    storage.setItem('session', user.session);
+    await storage.ready;
+    await storage.setItem('session', user.session);
 
     ref.read(userDataProvider.notifier).state = user;
     if (mounted) {

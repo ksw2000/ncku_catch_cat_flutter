@@ -49,6 +49,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
   @override
   void initState() {
     super.initState();
+
     data = ref.read(playDataProvider);
     _updatePositionPeriodically();
     // load cats
@@ -64,17 +65,14 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
     super.dispose();
   }
 
-  // 畫面切換
-  // @override
-  // void deactivate() {
-  //   super.deactivate();
-  //   _timer?.cancel();
-  // }
-
   @override
   Widget build(BuildContext context) {
     if (_timer == null) {
       _updatePositionPeriodically();
+    }
+
+    if (ref.read(userDataProvider) == null) {
+      return Scaffold(appBar: AppBar(), body: const SizedBox());
     }
 
     return Scaffold(
@@ -496,7 +494,10 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
         height: 40,
         anchorPos: AnchorPos.align(AnchorAlign.right),
         builder: (context) {
-          return FriendMarker(data: e);
+          return FriendMarker(
+            data: e,
+            hideName: _mapController.zoom < initZoom,
+          );
         },
       ));
     }
@@ -541,8 +542,10 @@ class TranslucentContainer extends StatelessWidget {
 }
 
 class FriendMarker extends StatelessWidget {
-  const FriendMarker({Key? key, required this.data}) : super(key: key);
+  const FriendMarker({Key? key, required this.hideName, required this.data})
+      : super(key: key);
   final FriendData data;
+  final bool hideName;
   @override
   Widget build(BuildContext context) {
     return Row(children: [
@@ -564,44 +567,46 @@ class FriendMarker extends StatelessWidget {
             },
           )),
       const SizedBox(width: 10),
-      Column(
-          // mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(children: [
-              Text(data.name,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      foreground: Paint()
-                        ..style = PaintingStyle.stroke
-                        ..color = Colors.white
-                        ..strokeWidth = 2,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold)),
-              Text(data.name,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.bold))
-            ]),
-            Stack(
+      hideName
+          ? const SizedBox()
+          : Column(
+              // mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(humanReadTime(data.lastLogin),
-                    style: TextStyle(
-                        foreground: Paint()
-                          ..style = PaintingStyle.stroke
-                          ..color = Colors.white
-                          ..strokeWidth = 2,
+                  Stack(children: [
+                    Text(data.name,
                         overflow: TextOverflow.ellipsis,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold)),
-                Text(humanReadTime(data.lastLogin),
-                    style: const TextStyle(
+                        style: TextStyle(
+                            foreground: Paint()
+                              ..style = PaintingStyle.stroke
+                              ..color = Colors.white
+                              ..strokeWidth = 3,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold)),
+                    Text(data.name,
                         overflow: TextOverflow.ellipsis,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold)),
-              ],
-            )
-          ])
+                        style: const TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.bold))
+                  ]),
+                  Stack(
+                    children: [
+                      Text(humanReadTime(data.lastLogin),
+                          style: TextStyle(
+                              foreground: Paint()
+                                ..style = PaintingStyle.stroke
+                                ..color = Colors.white
+                                ..strokeWidth = 3,
+                              overflow: TextOverflow.ellipsis,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold)),
+                      Text(humanReadTime(data.lastLogin),
+                          style: const TextStyle(
+                              overflow: TextOverflow.ellipsis,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold)),
+                    ],
+                  )
+                ])
     ]);
   }
 }
