@@ -1,4 +1,4 @@
-const domain = 'localhost:8080';
+const domain = 'lab.had.name:8080';
 
 Uri uri(
   String authority,

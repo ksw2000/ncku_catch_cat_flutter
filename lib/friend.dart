@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:catch_cat/data.dart';
 import 'package:catch_cat/util.dart';
+
+import 'package:flutter/material.dart';
 
 void showFriendInfo(
     BuildContext context, FriendData data, bool showThemeState) {

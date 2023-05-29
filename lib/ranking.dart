@@ -1,8 +1,9 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:catch_cat/data.dart';
 import 'package:catch_cat/util.dart';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 

@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:catch_cat/data.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:catch_cat/util.dart';
 import 'package:catch_cat/profile.dart';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 
@@ -202,8 +202,7 @@ class MyDrawer extends ConsumerWidget {
             leading: const Icon(Icons.menu_book),
             title: const Text('劇情'),
             onTap: () {
-              // Update the state of the app.
-              // ...
+              Navigator.pushNamed(context, '/story');
             },
           ),
           user != null

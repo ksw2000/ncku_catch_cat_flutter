@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:catch_cat/util.dart';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
-import 'package:catch_cat/util.dart';
 
 class PlayThemeData {
   PlayThemeData(
@@ -119,23 +121,13 @@ class UserData {
   void setShareGPS(bool flag) async {
     http.Response res = await http.post(uri(domain, '/user/update/share_gps'),
         body: jsonEncode({'session': session, 'share_or_not': flag}));
-    print(res.body);
+    debugPrint(res.body);
   }
 }
 
 StateProvider<UserData?> userDataProvider = StateProvider((ref) {
   return null;
 });
-
-// user 1
-// email:     algoalgogo@gmail.com
-// name:      INHPC
-// password:  algoalgo2023
-
-// user 2
-// email:     ayumu@mail.com
-// name:      歩夢
-// password:  algoalgo2023
 
 const defaultProfile = 'assets/images/defaultProfile.png';
 
@@ -188,7 +180,7 @@ class FriendData {
   final int cats; // 好友所抓到的貓的數
   final int score; // 好友的分數
   int themeCats; // 某個地圖中所獲取的貓貓數
-  int themeScore; // 芋個地圖中所獲取的貓貓總分
+  int themeScore; // 某個地圖中所獲取的貓貓總分
   int lastLogin;
   double lat;
   double lng;
@@ -200,4 +192,16 @@ int numOfCaught(List<Cat> cat) {
     if (e.isCaught) i++;
   }
   return i;
+}
+
+class StoryData {
+  StoryData(
+      {required this.title,
+      required this.abstraction,
+      required this.content,
+      this.lock = true});
+  String title;
+  String abstraction;
+  String content;
+  bool lock;
 }

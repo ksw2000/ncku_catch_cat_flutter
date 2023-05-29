@@ -9,6 +9,8 @@ import 'package:catch_cat/ranking.dart';
 import 'package:catch_cat/friends.dart';
 import 'package:catch_cat/util.dart';
 import 'package:catch_cat/album.dart';
+import 'package:catch_cat/story.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -39,6 +41,7 @@ class MyApp extends StatelessWidget {
         "/setting": (context) => const SettingPage(),
         "/friends": (context) => const FriendPage(),
         "/album": (context) => const AlbumPage(),
+        "/story": (context) => const StoryPage(),
       },
     );
   }
@@ -114,13 +117,15 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final emailCtrl = TextEditingController();
-  final pwdCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _pwdCtrl = TextEditingController();
+  final _scrollCtrl = ScrollController();
 
   @override
   void dispose() {
-    emailCtrl.dispose();
-    pwdCtrl.dispose();
+    _emailCtrl.dispose();
+    _pwdCtrl.dispose();
+    _scrollCtrl.dispose();
     super.dispose();
   }
 
@@ -132,55 +137,61 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         title: const Text('登入'),
       ),
       body: SafeArea(
+          child: Scrollbar(
+        controller: _scrollCtrl,
+        child: SingleChildScrollView(
+          controller: _scrollCtrl,
           child: Center(
               child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image.asset('assets/images/logo.png', width: 120),
-            const SizedBox(height: 20),
-            TextField(
-              controller: emailCtrl,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Email',
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: pwdCtrl,
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: '密碼',
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
+            constraints: const BoxConstraints(maxWidth: 500),
+            padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 10),
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                OutlinedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/register');
-                    },
-                    child: const Text('註冊')),
-                const SizedBox(width: 20),
-                OutlinedButton(
-                    onPressed: () {
-                      if (mounted) {
-                        _login(emailCtrl.text, pwdCtrl.text);
-                      }
-                    },
-                    child: const Text('登入')),
+              children: <Widget>[
+                Image.asset('assets/images/logo.png', width: 120),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _emailCtrl,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Email',
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _pwdCtrl,
+                  obscureText: true,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: '密碼',
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    OutlinedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/register');
+                        },
+                        child: const Text('註冊')),
+                    const SizedBox(width: 20),
+                    OutlinedButton(
+                        onPressed: () {
+                          if (mounted) {
+                            _login(_emailCtrl.text, _pwdCtrl.text);
+                          }
+                        },
+                        child: const Text('登入')),
+                  ],
+                ),
               ],
             ),
-          ],
+          )),
         ),
-      ))),
+      )),
     );
   }
 

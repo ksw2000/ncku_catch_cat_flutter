@@ -1,16 +1,18 @@
+import 'dart:async';
 import 'dart:convert';
 
-import 'package:catch_cat/friend.dart';
-import 'package:flutter/material.dart';
 import 'package:catch_cat/data.dart';
+import 'package:catch_cat/friend.dart';
+import 'package:catch_cat/util.dart';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'dart:async';
 import 'package:http/http.dart' as http;
 
-import 'util.dart';
+const catchingThreshold = 10;
 
 class PlayGround extends ConsumerStatefulWidget {
   const PlayGround({super.key});
@@ -172,7 +174,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
             ? const SizedBox()
             : Positioned(
                 bottom: 10,
-                left: 5,
+                left: 10,
                 child: InkWell(
                     onTap: _showCat,
                     child: TranslucentContainer(
@@ -195,7 +197,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
                       ],
                     )))),
         Positioned(
-            right: 5,
+            right: 10,
             bottom: 10,
             child: TranslucentContainer(
                 child: Column(children: [
@@ -269,7 +271,8 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
                 height: 5,
               ),
               ref.watch(closestCatProvider) != null &&
-                      ref.watch(closestCatProvider)!.distance < 10000
+                      ref.watch(closestCatProvider)!.distance <
+                          catchingThreshold
                   ? TextButton(
                       onPressed: () async {
                         if (ref.watch(closestCatProvider) != null) {
@@ -459,7 +462,7 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
       return;
     }
     List<Cat> catData =
-        (j['cat_list'] as List<dynamic>).map((e) => Cat.fromMap(e)).toList();
+        (j['cat_list'] as List).map((e) => Cat.fromMap(e)).toList();
     ref.read(catListDataProvider.notifier).state = catData;
   }
 

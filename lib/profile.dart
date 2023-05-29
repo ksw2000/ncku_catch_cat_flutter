@@ -1,9 +1,11 @@
 import 'dart:convert';
+
+import 'package:catch_cat/data.dart';
+import 'package:catch_cat/util.dart';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:catch_cat/data.dart';
-import 'package:catch_cat/util.dart';
 import 'package:http/http.dart' as http;
 
 class ProfilePhoto extends ConsumerStatefulWidget {
@@ -75,30 +77,6 @@ class _ProfilePhotoState extends ConsumerState<ProfilePhoto> {
             ],
           );
         });
-    /*
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 80,
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10), topRight: Radius.circular(10))),
-          // color: Colors.amber,
-          child: Center(
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.upload),
-              label: const Text('上傳新頭貼'),
-              onPressed: () {
-                Navigator.pop(context);
-                _pickProfile();
-              },
-            ),
-          ),
-        );
-      },
-    );
-    */
   }
 
   Future _pickProfile() async {
@@ -160,7 +138,9 @@ class _ProfilePhotoState extends ConsumerState<ProfilePhoto> {
                         ),
                         onPressed: () async {
                           await _updateProfile(path);
-                          Navigator.pop(context);
+                          if (mounted) {
+                            Navigator.pop(context);
+                          }
                         }),
                   ],
                 );

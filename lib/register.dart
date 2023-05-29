@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:catch_cat/util.dart';
+
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class RegisterPage extends StatefulWidget {

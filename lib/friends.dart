@@ -1,9 +1,10 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:catch_cat/util.dart';
 import 'package:catch_cat/data.dart';
 import 'package:catch_cat/friend.dart';
+
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -171,9 +172,7 @@ class _FriendPageState extends ConsumerState<FriendPage> {
       debugPrint(j['error']);
     }
 
-    return (j['list'] as List<dynamic>)
-        .map((e) => FriendData.fromMap(e))
-        .toList();
+    return (j['list'] as List).map((e) => FriendData.fromMap(e)).toList();
   }
 
   _inviteFriend() async {
@@ -306,7 +305,7 @@ class FriendElement extends ConsumerWidget {
                                 _acceptOrDeclineOrDeleteFriend(
                                     context, ref, data.id, "/friend/delete");
                                 Navigator.pop(context);
-                                // TODO
+                                // TODO 刷新頁面
                               }),
                         ],
                       );
