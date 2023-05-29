@@ -328,7 +328,9 @@ class _PlayGroundState extends ConsumerState<PlayGround> {
                         setState(() {
                           shareGPS = value;
                         });
-                        ref.read(userDataProvider)?.setShareGPS(value);
+                        ref.read(userDataProvider)?.setShareGPSInServer(value);
+                        ref.read(userDataProvider.notifier).state!.shareGPS =
+                            value;
                       },
                     ),
                     const Text("向好友分享我的位置")

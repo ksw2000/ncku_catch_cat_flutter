@@ -38,13 +38,35 @@ void showFriendInfo(
                 const SizedBox(
                   height: 15,
                 ),
-                Text("Lv ${data.level} ‧ ${humanReadTime(data.lastLogin)}上線",
-                    style: const TextStyle(fontSize: 16)),
+                Row(
+                  children: [
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
+                          border: Border.all(color: Colors.brown),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: Text('Lv. ${data.level}',
+                              style: const TextStyle(
+                                  fontSize: 13, color: Colors.brown)),
+                        )),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      "${humanReadTime(data.lastLogin)}上線",
+                    )
+                  ],
+                ),
+                // Text("Lv ${data.level} ‧ ${humanReadTime(data.lastLogin)}上線",
+                //     style: const TextStyle(fontSize: 16)),
                 const SizedBox(
                   height: 5,
                 ),
                 Text(
-                  "一共捕獲 ${data.cats} 隻貓貓 ‧${data.score} 分",
+                  "一共捕獲 ${data.cats} 隻貓貓 ${data.score} 分",
                   style: const TextStyle(fontSize: 16),
                 ),
                 showThemeState

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/retry.dart';
 
 class FriendPage extends ConsumerStatefulWidget {
   const FriendPage({Key? key}) : super(key: key);
@@ -172,7 +173,19 @@ class _FriendPageState extends ConsumerState<FriendPage> {
       debugPrint(j['error']);
     }
 
-    return (j['list'] as List).map((e) => FriendData.fromMap(e)).toList();
+    try {
+      debugPrint("$j");
+      List<FriendData> d = (j['list'] as List).map<FriendData>((e) {
+        FriendData f = FriendData.fromMap(e);
+        debugPrint("$f");
+        return f;
+      }).toList();
+      return d;
+    } catch (e) {
+      debugPrint("$accepted line182");
+      debugPrint("$e");
+    }
+    return [];
   }
 
   _inviteFriend() async {
@@ -209,8 +222,6 @@ class FriendElement extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
         child: ListTile(
-      dense: true,
-      visualDensity: const VisualDensity(vertical: 3),
       leading: SizedBox(
           height: 50,
           width: 50,
@@ -237,30 +248,23 @@ class FriendElement extends ConsumerWidget {
               splashColor: Colors.white.withOpacity(0.3),
             ),
           )),
-      title: Row(
+      title: Text(data.name, style: const TextStyle(fontSize: 17)),
+      subtitle: Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  border: Border.all(color: Colors.brown),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text('Lv. ${data.level}',
-                      style:
-                          const TextStyle(fontSize: 13, color: Colors.brown)),
-                )),
-            const SizedBox(
-              width: 8,
+            Text(
+              'Lv. ${data.level}',
+              style: const TextStyle(fontSize: 13, color: Colors.brown),
             ),
-            Text(data.name, style: const TextStyle(fontSize: 17)),
             const SizedBox(
               width: 8,
             ),
             Text('${humanReadTime(data.lastLogin)}上線',
-                style: const TextStyle(fontSize: 13, color: Colors.brown)),
+                style: const TextStyle(color: Colors.brown)),
+            const SizedBox(
+              width: 8,
+            ),
           ]),
       trailing: !accepted
           ? Row(
