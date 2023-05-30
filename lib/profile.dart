@@ -43,7 +43,6 @@ class _ProfilePhotoState extends ConsumerState<ProfilePhoto> {
         child: InkWell(
           onTap: () {
             _showPickFile();
-            // _pickProfile();
           },
           splashColor: Colors.white.withOpacity(0.3),
         ),
@@ -80,7 +79,10 @@ class _ProfilePhotoState extends ConsumerState<ProfilePhoto> {
   }
 
   Future _pickProfile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    // when using android
+    // if not set withData: true, the file.bytes will be null
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(withData: true);
     if (result != null) {
       PlatformFile file = result.files.first;
       if (file.bytes != null) {
