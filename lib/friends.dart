@@ -297,7 +297,9 @@ class FriendElement extends ConsumerWidget {
                                 _acceptOrDeclineOrDeleteFriend(
                                     context, ref, data.id, "/friend/delete");
                                 Navigator.pop(context);
-                                // TODO 刷新頁面
+                                // refresh
+                                Navigator.pushReplacementNamed(
+                                    context, "/friends");
                               }),
                         ],
                       );
@@ -319,11 +321,14 @@ class FriendElement extends ConsumerWidget {
       throw (res.statusCode);
     }
     Map<String, dynamic> j = jsonDecode(res.body);
-    if (context.mounted) {
+    if (context.mounted && j['error'] != "") {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(j['error'] != '' ? (j['error'] as String) : "成功"),
-        // TODO 刷新頁面
+        content: Text(j['error'] as String),
       ));
+      return;
+    } else if (context.mounted) {
+      // refresh
+      Navigator.pushReplacementNamed(context, "/friends");
     }
   }
 }

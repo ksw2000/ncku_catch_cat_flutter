@@ -65,6 +65,17 @@ StateProvider<List<Cat>> catListDataProvider = StateProvider((ref) {
 });
 
 class UserData {
+  UserData(
+      {required this.id,
+      required this.name,
+      required this.email,
+      this.profile,
+      required this.verified,
+      required this.session,
+      required this.level,
+      required this.score,
+      required this.cats,
+      required this.shareGPS});
   UserData.fromMap(Map<String, dynamic> j)
       : id = j["uid"],
         session = j['session'],
@@ -92,6 +103,20 @@ class UserData {
     http.Response res = await http.post(uri(domain, '/user/update/share_gps'),
         body: jsonEncode({'session': session, 'share_or_not': flag}));
     debugPrint(res.body);
+  }
+
+  UserData copy() {
+    return UserData(
+        id: id,
+        name: name,
+        email: email,
+        verified: verified,
+        profile: profile,
+        session: session,
+        level: level,
+        score: score,
+        cats: cats,
+        shareGPS: shareGPS);
   }
 }
 

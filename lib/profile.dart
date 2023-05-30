@@ -159,7 +159,10 @@ class _ProfilePhotoState extends ConsumerState<ProfilePhoto> {
             {"session": ref.read(userDataProvider)!.session, "path": path}));
     debugPrint(res.body);
     Map<String, dynamic> j = jsonDecode(res.body);
-    ref.read(userDataProvider.notifier).state!.profile = path;
+
+    final user = ref.read(userDataProvider)!.copy();
+    user.profile = path;
+    ref.read(userDataProvider.notifier).state = user;
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(j['error'] != "" ? j['error'] : "完成"),

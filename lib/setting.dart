@@ -162,7 +162,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       return;
     }
     if (context.mounted && res.statusCode == 201) {
-      ref.read(userDataProvider.notifier).state!.name = _nameCtrl.text;
+      final user = ref.read(userDataProvider)!.copy();
+      user.name = _nameCtrl.text;
+      ref.read(userDataProvider.notifier).state = user;
 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("修改成功"),
@@ -214,7 +216,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       return;
     }
     if (context.mounted && res.statusCode == 201) {
-      ref.read(userDataProvider.notifier).state!.email = _emailCtrl.text;
+      final user = ref.read(userDataProvider)!.copy();
+      user.email = _emailCtrl.text;
+      ref.read(userDataProvider.notifier).state = user;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("修改成功"),
       ));
