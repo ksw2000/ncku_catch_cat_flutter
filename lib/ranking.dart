@@ -23,50 +23,52 @@ class _RankingPageState extends ConsumerState<RankingPage> {
           title: const Text('排名'),
         ),
         body: SafeArea(
-            child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: Center(
-                    child: FutureBuilder<List<FriendData>>(
-                  future: _getRankList(ref.watch(playDataProvider)?.id ?? 0,
-                      ref.watch(userDataProvider)?.session ?? ""),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<List<FriendData>> snapshot) {
-                    if (snapshot.hasData) {
-                      List<Widget> widgets = [];
-                      for (int i = 0; i < snapshot.data!.length; i++) {
-                        widgets.add(RankingListElement(
-                            data: snapshot.data![i], rank: i + 1));
-                      }
-                      return Column(children: widgets);
-                    } else if (snapshot.hasError) {
-                      return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            const Icon(
-                              Icons.error_outline,
-                              color: Colors.red,
-                              size: 60,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 16),
-                              child: Text('Error: ${snapshot.error}'),
-                            ),
-                          ]);
+            child: Center(
+          child: Container(
+              constraints: const BoxConstraints(maxWidth: 650),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              child: Center(
+                  child: FutureBuilder<List<FriendData>>(
+                future: _getRankList(ref.watch(playDataProvider)?.id ?? 0,
+                    ref.watch(userDataProvider)?.session ?? ""),
+                builder: (BuildContext context,
+                    AsyncSnapshot<List<FriendData>> snapshot) {
+                  if (snapshot.hasData) {
+                    List<Widget> widgets = [];
+                    for (int i = 0; i < snapshot.data!.length; i++) {
+                      widgets.add(RankingListElement(
+                          data: snapshot.data![i], rank: i + 1));
                     }
+                    return Column(children: widgets);
+                  } else if (snapshot.hasError) {
+                    return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                            size: 60,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: Text('Error: ${snapshot.error}'),
+                          ),
+                        ]);
+                  }
 
-                    return const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 60,
-                          height: 60,
-                          child: CircularProgressIndicator(),
-                        ),
-                      ],
-                    );
-                  },
-                )))));
+                  return const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: CircularProgressIndicator(),
+                      ),
+                    ],
+                  );
+                },
+              ))),
+        )));
   }
 
   Future<List<FriendData>> _getRankList(int themeID, String session) async {

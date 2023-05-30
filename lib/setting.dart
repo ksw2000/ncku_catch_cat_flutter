@@ -59,92 +59,95 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 controller: _scrollCtrl,
                 child: SingleChildScrollView(
                     controller: _scrollCtrl,
-                    child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 20),
-                        child: Center(
-                            child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Center(child: ProfilePhoto(size: 100)),
-                            separator,
-                            const Text(
-                              '修改暱稱',
-                              style: titleTextStyle,
-                            ),
-                            separator,
-                            TextField(
-                              controller: _nameCtrl,
-                              enableSuggestions: false,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: '暱稱',
+                    child: Center(
+                      child: Container(
+                          constraints: const BoxConstraints(maxWidth: 500),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                          child: Center(
+                              child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Center(child: ProfilePhoto(size: 100)),
+                              separator,
+                              const Text(
+                                '修改暱稱',
+                                style: titleTextStyle,
                               ),
-                            ),
-                            separator,
-                            OutlinedButton(
-                                onPressed: _updateName,
-                                child: const Text('修改')),
-                            separator,
-                            const Text('修改 Email', style: titleTextStyle),
-                            separator,
-                            TextField(
-                              controller: _emailCtrl,
-                              obscureText: false,
-                              enableSuggestions: false,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'Email',
+                              separator,
+                              TextField(
+                                controller: _nameCtrl,
+                                enableSuggestions: false,
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: '暱稱',
+                                ),
                               ),
-                            ),
-                            separator,
-                            OutlinedButton(
-                                onPressed: _updateEmail,
-                                child: const Text('修改')),
-                            separator,
-                            const Text(
-                              '修改密碼',
-                              style: titleTextStyle,
-                            ),
-                            separator,
-                            TextField(
-                              controller: _oriPwdCtrl,
-                              obscureText: true,
-                              enableSuggestions: false,
-                              autocorrect: false,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: '原始密碼',
+                              separator,
+                              OutlinedButton(
+                                  onPressed: _updateName,
+                                  child: const Text('修改')),
+                              separator,
+                              const Text('修改 Email', style: titleTextStyle),
+                              separator,
+                              TextField(
+                                controller: _emailCtrl,
+                                obscureText: false,
+                                enableSuggestions: false,
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Email',
+                                ),
                               ),
-                            ),
-                            separator,
-                            TextField(
-                              controller: _newPwdCtrl,
-                              obscureText: true,
-                              enableSuggestions: false,
-                              autocorrect: false,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: '新密碼',
+                              separator,
+                              OutlinedButton(
+                                  onPressed: _updateEmail,
+                                  child: const Text('修改')),
+                              separator,
+                              const Text(
+                                '修改密碼',
+                                style: titleTextStyle,
                               ),
-                            ),
-                            separator,
-                            TextField(
-                              controller: _confirmPwdCtrl,
-                              obscureText: true,
-                              enableSuggestions: false,
-                              autocorrect: false,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: '確認密碼',
+                              separator,
+                              TextField(
+                                controller: _oriPwdCtrl,
+                                obscureText: true,
+                                enableSuggestions: false,
+                                autocorrect: false,
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: '原始密碼',
+                                ),
                               ),
-                            ),
-                            separator,
-                            OutlinedButton(
-                                onPressed: _updatePassword,
-                                child: const Text('修改')),
-                          ],
-                        )))))));
+                              separator,
+                              TextField(
+                                controller: _newPwdCtrl,
+                                obscureText: true,
+                                enableSuggestions: false,
+                                autocorrect: false,
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: '新密碼',
+                                ),
+                              ),
+                              separator,
+                              TextField(
+                                controller: _confirmPwdCtrl,
+                                obscureText: true,
+                                enableSuggestions: false,
+                                autocorrect: false,
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: '確認密碼',
+                                ),
+                              ),
+                              separator,
+                              OutlinedButton(
+                                  onPressed: _updatePassword,
+                                  child: const Text('修改')),
+                            ],
+                          ))),
+                    )))));
   }
 
   Future _updateName() async {

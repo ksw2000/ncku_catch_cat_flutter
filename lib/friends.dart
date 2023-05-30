@@ -47,53 +47,56 @@ class _FriendPageState extends ConsumerState<FriendPage> {
                 controller: _scrollCtrl,
                 child: SingleChildScrollView(
                     controller: _scrollCtrl,
-                    child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 10),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                '加好友',
-                                style: titleTextStyle,
-                              ),
-                              separator,
-                              Row(
-                                children: [
-                                  // https://stackoverflow.com/questions/45986093/textfield-inside-of-row-causes-layout-exception-unable-to-calculate-size
-                                  Flexible(
-                                      child: TextField(
-                                    controller: _addUserByIDCtrl,
-                                    decoration: const InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        hintText: '好友 ID',
-                                        prefixIcon: Icon(Icons.search)),
-                                    keyboardType: TextInputType.number,
-                                  )),
-                                  TextButton(
-                                      onPressed: _inviteFriend,
-                                      child: const Text('申請')),
-                                ],
-                              ),
-                              separator,
-                              Row(
-                                children: [
-                                  Text(
-                                    '我的 ID: ${ref.watch(userDataProvider)?.id.toString()}',
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  TextButton(
-                                      onPressed: () => _copyID(),
-                                      child: const Text('複製'))
-                                ],
-                              ),
-                              separator,
-                              invitingList,
-                              friendList
-                            ]))))));
+                    child: Center(
+                      child: Container(
+                          constraints: const BoxConstraints(maxWidth: 500),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 10),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  '加好友',
+                                  style: titleTextStyle,
+                                ),
+                                separator,
+                                Row(
+                                  children: [
+                                    // https://stackoverflow.com/questions/45986093/textfield-inside-of-row-causes-layout-exception-unable-to-calculate-size
+                                    Flexible(
+                                        child: TextField(
+                                      controller: _addUserByIDCtrl,
+                                      decoration: const InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          hintText: '好友 ID',
+                                          prefixIcon: Icon(Icons.search)),
+                                      keyboardType: TextInputType.number,
+                                    )),
+                                    TextButton(
+                                        onPressed: _inviteFriend,
+                                        child: const Text('申請')),
+                                  ],
+                                ),
+                                separator,
+                                Row(
+                                  children: [
+                                    Text(
+                                      '我的 ID: ${ref.watch(userDataProvider)?.id.toString()}',
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    TextButton(
+                                        onPressed: () => _copyID(),
+                                        child: const Text('複製'))
+                                  ],
+                                ),
+                                separator,
+                                invitingList,
+                                friendList
+                              ])),
+                    )))));
   }
 
   void _copyID() async {

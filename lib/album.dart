@@ -35,11 +35,19 @@ class _AlbumPageState extends ConsumerState<AlbumPage> {
             builder: (BuildContext context,
                 AsyncSnapshot<List<CatKindData>> snapshot) {
               if (snapshot.hasData) {
-                return GridView.count(
-                  crossAxisCount:
-                      min(5, max(1, MediaQuery.of(context).size.width ~/ 120)),
-                  children:
-                      snapshot.data!.map((e) => AlbumCard(data: e)).toList(),
+                return Center(
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 650),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 10),
+                    child: GridView.count(
+                      crossAxisCount: min(
+                          5, max(1, MediaQuery.of(context).size.width ~/ 120)),
+                      children: snapshot.data!
+                          .map((e) => AlbumCard(data: e))
+                          .toList(),
+                    ),
+                  ),
                 );
               } else if (snapshot.hasError) {
                 return Center(

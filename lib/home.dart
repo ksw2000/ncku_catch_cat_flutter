@@ -35,56 +35,59 @@ class _SelectPageState extends ConsumerState<HomePage> {
                 controller: scrollCtrl,
                 child: SingleChildScrollView(
                   controller: scrollCtrl,
-                  child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 10.0),
-                      child: Column(
-                        children: [
-                          const UserField(),
-                          FutureBuilder<List<PlayThemeData>>(
-                            future: _getPlayThemeList(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<List<PlayThemeData>> snapshot) {
-                              List<Widget> children;
-                              if (snapshot.hasData) {
-                                children = snapshot.data!
-                                    .map((e) => PlayCard(data: e))
-                                    .toList();
-                              } else if (snapshot.hasError) {
-                                children = <Widget>[
-                                  const Icon(
-                                    Icons.error_outline,
-                                    color: Colors.red,
-                                    size: 60,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 16),
-                                    child: Text('Error: ${snapshot.error}'),
-                                  ),
-                                ];
-                              } else {
-                                children = const <Widget>[
-                                  SizedBox(
-                                    width: 60,
-                                    height: 60,
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                ];
-                              }
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: children,
-                              );
-                            },
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          const Text('(๑•̀ω•́)ノ已經到底了，努力製作中',
-                              style:
-                                  TextStyle(fontSize: 14, color: Colors.grey))
-                        ],
-                      )),
+                  child: Center(
+                    child: Container(
+                        constraints: const BoxConstraints(maxWidth: 750),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 10.0),
+                        child: Column(
+                          children: [
+                            const UserField(),
+                            FutureBuilder<List<PlayThemeData>>(
+                              future: _getPlayThemeList(),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<List<PlayThemeData>> snapshot) {
+                                List<Widget> children;
+                                if (snapshot.hasData) {
+                                  children = snapshot.data!
+                                      .map((e) => PlayCard(data: e))
+                                      .toList();
+                                } else if (snapshot.hasError) {
+                                  children = <Widget>[
+                                    const Icon(
+                                      Icons.error_outline,
+                                      color: Colors.red,
+                                      size: 60,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 16),
+                                      child: Text('Error: ${snapshot.error}'),
+                                    ),
+                                  ];
+                                } else {
+                                  children = const <Widget>[
+                                    SizedBox(
+                                      width: 60,
+                                      height: 60,
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  ];
+                                }
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: children,
+                                );
+                              },
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            const Text('(๑•̀ω•́)ノ已經到底了，努力製作中',
+                                style:
+                                    TextStyle(fontSize: 14, color: Colors.grey))
+                          ],
+                        )),
+                  ),
                 ))));
   }
 

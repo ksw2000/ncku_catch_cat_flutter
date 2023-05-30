@@ -40,55 +40,58 @@ class _RegisterPageState extends State<RegisterPage> {
                 controller: scrollCtrl,
                 child: SingleChildScrollView(
                     controller: scrollCtrl,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 20.0),
-                      child: Column(children: [
-                        TextField(
-                          controller: emailCtrl,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Email',
+                    child: Center(
+                      child: Container(
+                        constraints: const BoxConstraints(maxWidth: 650),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 20.0),
+                        child: Column(children: [
+                          TextField(
+                            controller: emailCtrl,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: 'Email',
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        TextField(
-                          controller: nameCtrl,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: '暱稱',
+                          const SizedBox(height: 20),
+                          TextField(
+                            controller: nameCtrl,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: '暱稱',
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        TextField(
-                          controller: pwdCtrl,
-                          obscureText: true,
-                          enableSuggestions: false,
-                          autocorrect: false,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: '密碼',
+                          const SizedBox(height: 20),
+                          TextField(
+                            controller: pwdCtrl,
+                            obscureText: true,
+                            enableSuggestions: false,
+                            autocorrect: false,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: '密碼',
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        TextField(
-                          controller: confirmPwdCtrl,
-                          obscureText: true,
-                          enableSuggestions: false,
-                          autocorrect: false,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: '確認密碼',
+                          const SizedBox(height: 20),
+                          TextField(
+                            controller: confirmPwdCtrl,
+                            obscureText: true,
+                            enableSuggestions: false,
+                            autocorrect: false,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: '確認密碼',
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        OutlinedButton(
-                            onPressed: () {
-                              _reg(pwdCtrl.text, confirmPwdCtrl.text,
-                                  emailCtrl.text, nameCtrl.text);
-                            },
-                            child: const Text('送出')),
-                      ]),
+                          const SizedBox(height: 20),
+                          OutlinedButton(
+                              onPressed: () {
+                                _reg(pwdCtrl.text, confirmPwdCtrl.text,
+                                    emailCtrl.text, nameCtrl.text);
+                              },
+                              child: const Text('送出')),
+                        ]),
+                      ),
                     )))));
   }
 

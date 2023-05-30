@@ -30,13 +30,16 @@ class _StoryPageState extends ConsumerState<StoryPage> {
                 controller: _scrollCtrl,
                 child: SingleChildScrollView(
                     controller: _scrollCtrl,
-                    child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 10.0),
-                        child: Column(
-                            children: getStory()
-                                .map((e) => StoryListElement(data: e))
-                                .toList()))))));
+                    child: Center(
+                      child: Container(
+                          constraints: const BoxConstraints(maxWidth: 650),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 10.0),
+                          child: Column(
+                              children: getStory()
+                                  .map((e) => StoryListElement(data: e))
+                                  .toList())),
+                    )))));
   }
 
   List<StoryData> getStory() {
@@ -139,10 +142,13 @@ class _StoryContentPageState extends ConsumerState<StoryContentPage> {
                 controller: _scrollCtrl,
                 child: SingleChildScrollView(
                     controller: _scrollCtrl,
-                    child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 10.0),
-                        child: Text(widget.data.content))))));
+                    child: Center(
+                      child: Container(
+                          constraints: const BoxConstraints(maxWidth: 650),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 10.0),
+                          child: Text(widget.data.content)),
+                    )))));
   }
 }
 
